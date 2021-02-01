@@ -1,0 +1,8 @@
+"0",""
+"0",""
+"0","# sub-set of the dataset with at least 100 races held (o piloti con rate 2 gare vinte su 2..... facile così :) )"
+"0","driver_stats_with_100_races = driver_stats %>% filter(races>99)"
+"0",""
+"0","# podium rate for drivers with at least 100 races held"
+"0","driver_stats_with_100_races = driver_stats_with_100_races %>% arrange(desc(podium_rate))"
+"0","driver_stats_with_100_races"

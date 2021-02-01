@@ -1,0 +1,8 @@
+"0","# Plotting driver for...."
+"0",""
+"0","# races held"
+"0",""
+"0","driver_stats = driver_stats %>% mutate(full_name = paste(forename,surname))"
+"0",""
+"0","driver_stats = driver_stats %>% arrange(desc(races))"
+"0","driver_stats"
