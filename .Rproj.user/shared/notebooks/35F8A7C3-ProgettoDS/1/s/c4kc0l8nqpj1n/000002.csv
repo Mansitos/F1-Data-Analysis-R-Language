@@ -1,0 +1,24 @@
+"2","r error 4 (R code execution error)"
+"0","# Loading libraries"
+"0",""
+"0","library(ggplot2)"
+"2","package ‘ggplot2’ was built under R version 4.0.3"
+"2","Use suppressPackageStartupMessages() to eliminate package startup messages
+"
+"0","library(readr)"
+"0","library(tibble)"
+"0","library(dplyr)"
+"2","
+Attaching package: ‘dplyr’
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"

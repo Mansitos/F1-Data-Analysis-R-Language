@@ -1,0 +1,5 @@
+"0",""
+"0","ggplot(data=data,aes(x= reorder(name,-win_seasons),y=win_seasons)) +"
+"0","  geom_bar(aes(fill=win_seasons),stat = 'identity', show.legend = FALSE) +"
+"0","  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +"
+"0","  labs(x="""",y="""",title=""Classifica scuderie per campionati vinti"")"

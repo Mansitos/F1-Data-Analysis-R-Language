@@ -407,5 +407,78 @@ ggplot(data=data[1:30,],aes(x= reorder(full_name,-points_ratio),y=points_ratio))
   geom_bar(aes(fill=points_ratio),stat = 'identity', show.legend = FALSE) +
   theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
   labs(x="",y="",title="% di punti ottenuti sul potenziale totale")
+```
+
+```{r,include = !knit_relazione, warning=FALSE,message=FALSE}
+# Analisi dei costruttori
+
+# pulizia dataset + conversione da nazionalità a nazione
+constr = constr %>% select (-url)
+constr = left_join(constr,nat_to_country) %>% select(-nationality)
+
+# --- Conto il numero di scuderie per nazione
+temp <- constr %>% count(country) %>% rename(constructors=n)
+# Aggiungo l'informazione alle statistiche delle nazioni
+country_stats <- left_join(country_stats,temp,by="country")
+# cleaning data
+rm(temp)
+# Gli NA diventano 0
+country_stats[is.na(country_stats)] <- 0
+
+# --- Conto il numero di campionati vinti per scuderia (introdotti nel 1958)
+seasons_constr_winners = inner_join(constrStand,races,by='raceId') %>% select(year,position,points,constructorId,raceId) %>% filter(position==1) %>% group_by(year) %>% top_n(1,points) %>% arrange(desc(year)) %>% group_by(year) %>% top_n(1,raceId) %>% select(year,constructorId)
+
+# count per constr
+seasons_constr_winners = seasons_constr_winners %>% group_by(constructorId) %>% count(constructorId) %>% rename(win_seasons=n)
+
+# --- Conto il numero di campionati svolti per scuderia (introdotti nel 1958)
+seasons_constr_count = unique(inner_join(results,races,by='raceId') %>% select(year,constructorId)) %>% count(constructorId) %>% rename(held_seasons=n) %>% arrange(desc(held_seasons))
+
+# Riunisco i risultati in un unico df
+constr_stats = full_join(constr,seasons_constr_count,by="constructorId")
+constr_stats = full_join(constr_stats,seasons_constr_winners,by="constructorId")
+
+# NA = 0
+constr_stats[is.na(constr_stats)] <- 0
+constr_stats
+
+# --- Calcolo win ratio (seasons)
+constr_stats = constr_stats %>% mutate(seasons_win_ratio=win_seasons/held_seasons)
+
+# Pulizia env
+rm(constr,seasons_constr_winners,seasons_constr_count)
 
 ```
+
+```{r,include = TRUE, warning=FALSE,message=FALSE}
+
+constr_stats = constr_stats %>% arrange(desc(held_seasons))
+constr_stats
+
+ggplot(data=constr_stats[1:30,],aes(x= reorder(name,-held_seasons),y=held_seasons)) +
+  geom_bar(aes(fill=held_seasons),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  labs(x="",y="",title="Top 30 scuderie per numero di campionati svolti")
+
+
+data = constr_stats %>% arrange(desc(win_seasons)) %>% filter(win_seasons>0)
+data
+
+ggplot(data=data,aes(x= reorder(name,-win_seasons),y=win_seasons)) +
+  geom_bar(aes(fill=win_seasons),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  labs(x="",y="",title="Classifica scuderie per campionati vinti")
+
+
+constr_stats = constr_stats %>% arrange(desc(seasons_win_ratio))
+constr_stats
+
+ggplot(data=data,aes(x= reorder(name,-seasons_win_ratio),y=seasons_win_ratio)) +
+  geom_bar(aes(fill=seasons_win_ratio),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  labs(x="",y="",title="Rapporto campionati vinti/campionati svolti")
+
+```
+
+
+
