@@ -1,6 +1,0 @@
-"0",""
-"0","ggplot(data=country_stats[1:20,],aes(x= reorder(country,-score),y=score)) +"
-"0","  geom_bar(aes(fill=score),stat = 'identity', show.legend = FALSE) +"
-"0","  theme(axis.text.x = element_text(angle=90, vjust=0, hjust=1)) +"
-"0","  labs(x="""",y="""",title=""Ranking nazioni F1"")"
-"0",""

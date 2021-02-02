@@ -1,4 +1,0 @@
-"0","# Plot nation score"
-"0",""
-"0","country_stats = country_stats %>% arrange(desc(score))"
-"0","country_stats"

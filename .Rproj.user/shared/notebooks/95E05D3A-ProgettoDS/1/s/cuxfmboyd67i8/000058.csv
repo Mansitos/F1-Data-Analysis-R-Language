@@ -1,5 +1,0 @@
-"0",""
-"0","ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-races),y=races)) +"
-"0","  geom_bar(aes(fill=races),stat = 'identity', show.legend = FALSE) +"
-"0","  theme(axis.text.x = element_text(angle=90, vjust=0, hjust=1)) +"
-"0","  labs(x="""",y="""",title=""races"")"

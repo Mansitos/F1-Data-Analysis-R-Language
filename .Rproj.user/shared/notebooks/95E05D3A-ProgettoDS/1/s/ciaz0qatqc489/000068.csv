@@ -1,6 +1,0 @@
-"0",""
-"0","ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-tot_poits_new),y=tot_poits_new)) +"
-"0","  geom_bar(aes(fill=tot_poits_new),stat = 'identity', show.legend = FALSE) +"
-"0","  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +"
-"0","  labs(x="""",y="""",title=""tot points rank with normalized data (same score system for each season)"")"
-"0",""

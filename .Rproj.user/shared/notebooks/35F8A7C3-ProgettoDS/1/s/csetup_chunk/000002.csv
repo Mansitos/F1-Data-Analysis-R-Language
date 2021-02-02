@@ -1,0 +1,7 @@
+"0","knitr::opts_chunk$set(echo = TRUE)"
+"0",""
+"0","# Se true -> knitting della relazione, un sacco di porzioni NON vanno incluse"
+"0","# Se false -> knitting completo, non esclude codice etc., viene incluso quasi tutto"
+"0","knit_relazione = TRUE"
+"0",""
+"0","# per includere una porzione nella relazione: INCLUDE=TRUE"

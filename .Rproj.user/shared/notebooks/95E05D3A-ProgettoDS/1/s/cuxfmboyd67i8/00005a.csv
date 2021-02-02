@@ -1,5 +1,0 @@
-"0",""
-"0","# wins"
-"0",""
-"0","driver_stats = driver_stats %>% arrange(desc(wins))"
-"0","driver_stats"

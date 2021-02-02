@@ -1,7 +1,0 @@
-"0","driver_stats = driver_stats %>% mutate(tot_points_potential = races*25)"
-"0","driver_stats = driver_stats %>% mutate(points_ratio = tot_poits_new/tot_points_potential)"
-"0",""
-"0","# include only drivers with at least 50 races"
-"0","data = driver_stats %>% filter(races > 25)"
-"0","data = data %>% arrange(desc(points_ratio))"
-"0","data"
