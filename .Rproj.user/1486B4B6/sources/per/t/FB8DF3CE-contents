@@ -23,6 +23,8 @@ library(ggplot2)
 library(readr)
 library(tibble)
 library(dplyr)
+library(fmsb)
+library(viridis)
 ```
 
 ```{r, include = !knit_relazione,message=FALSE,warning=FALSE}
@@ -105,7 +107,7 @@ country_stats[is.na(country_stats)] <- 0
 country_stats
 ```
 
-```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE}
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=10, fig.height=6}
 
 # Plot top nazionalità per num piloti
 
@@ -113,7 +115,7 @@ country_stats = country_stats %>% arrange(desc(drivers))
 
 ggplot(data=country_stats[1:20,],aes(x= reorder(country,-drivers),y=drivers)) +
   geom_bar(aes(fill=drivers),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5)) +
   labs(x="",y="",title="Top 20 nazioni per n° di piloti")
 
 # Plot top nazionalità per gare disputate
@@ -122,7 +124,7 @@ country_stats = country_stats %>% arrange(desc(held_races))
 
 ggplot(data=country_stats[1:20,],aes(x= reorder(country,-held_races),y=held_races)) +
   geom_bar(aes(fill=held_races),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5)) +
   labs(x="",y="",title="Top 20 nazioni per n° di gare disputate")
 
 # Plot top nazionalità per num circuiti
@@ -131,7 +133,7 @@ country_stats = country_stats %>% arrange(desc(circuits_used))
 
 ggplot(data=country_stats[1:20,],aes(x= reorder(country,-circuits_used),y=circuits_used)) +
   geom_bar(aes(fill=circuits_used),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5)) +
   labs(x="",y="",title="Top 20 nazioni per n° circuiti utilizzati")
 ```
 
@@ -159,7 +161,7 @@ sum(country_stats$score,na.rm=TRUE)/score_multiplier == 1   # MUST BE 1 (100%)
 ```
 
 
-```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE}
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=10, fig.height=6}
 # Plot top 25 nazioni per score
 
 country_stats = country_stats %>% arrange(desc(score))
@@ -167,8 +169,14 @@ country_stats
 
 ggplot(data=country_stats[0:25,],aes(x= reorder(country,-score),y=score)) +
   geom_bar(aes(fill=score),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5)) +
   labs(x="",y="",title="Top 25 nazioni più presenti nella storia della F1")
+
+ggplot(data=country_stats[0:25,],aes(x= reorder(country,score),y=score)) +
+  geom_bar(aes(fill=score),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +
+  labs(x="",y="",title="test horizontal barplot") +
+  coord_flip()
 
 ```
 
@@ -215,7 +223,7 @@ driver_stats = driver_stats %>% mutate(full_name = paste(forename,surname)) %>% 
 driver_stats
 ```
 
-```{r,include = TRUE, warning=FALSE,message=FALSE, echo=FALSE}
+```{r,include = TRUE, warning=FALSE,message=FALSE, echo=FALSE,fig.width=10, fig.height=6}
 
 # Plot delle informazioni ricevute per i piloti (top 30)
 
@@ -226,7 +234,7 @@ driver_stats
 
 ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-races),y=races)) +
   geom_bar(aes(fill=races),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Top 30 piloti per n° di gare disputate")
 
 # wins plot
@@ -236,7 +244,7 @@ driver_stats
 
 ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-wins),y=wins)) +
   geom_bar(aes(fill=wins),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Top 30 piloti per n° vittorie")
 
 
@@ -247,7 +255,7 @@ driver_stats
 
 ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-second),y=second)) +
   geom_bar(aes(fill=second),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Top 30 piloti per 2° posto")
 
 
@@ -258,7 +266,7 @@ driver_stats
 
 ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-third),y=third)) +
   geom_bar(aes(fill=third),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Top 30 piloti per 3° posto")
 
 # totale podi plot
@@ -267,7 +275,7 @@ driver_stats
 
 ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-podiums),y=podiums)) +
   geom_bar(aes(fill=podiums),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Top 30 piloti per n° di podi totali")
 
 # per il plot del podium_rate considero i piloti con almeno 100 gare, altrimenti in cima alla classifica avrei piloti con 1 gara vinta su 1 (ad esempio)... troppo facile :)
@@ -279,7 +287,7 @@ driver_stats_with_100_races
 
 ggplot(data=driver_stats_with_100_races[1:30,],aes(x= reorder(full_name,-podium_rate),y=podium_rate)) +
   geom_bar(aes(fill=podium_rate),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Top 30 piloti per rapporto podi/gare disputate (con almeno 100 gare disputate)")
 
 # win rate for drivers with at least 100 races held
@@ -288,7 +296,7 @@ driver_stats_with_100_races
 
 ggplot(data=driver_stats_with_100_races[1:30,],aes(x= reorder(full_name,-win_rate),y=win_rate)) +
   geom_bar(aes(fill=win_rate),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Top 30 piloti per rapporto vittorie/gare disputate (con almeno 100 gare disputate)")
 
 rm(driver_stats_with_100_races)
@@ -325,11 +333,11 @@ season_rank_system_data = season_rank_system_data %>% rename(points_per_win=poin
 
 ```
 
-```{r,include = TRUE, warning=FALSE,message=FALSE, echo=FALSE}
+```{r,include = TRUE, warning=FALSE,message=FALSE, echo=FALSE,fig.width=10, fig.height=6}
 
 ggplot(data=season_rank_system_data[],aes(x= reorder(year,year),y=points_per_win)) +
   geom_bar(position = "dodge", aes(fill=points_per_win),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=90, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=90, vjust=1, hjust=1,size=9)) +
   labs(x="",y="",title="Punti per vittoria - diversi sistemi di punteggio")
 
 ```
@@ -373,13 +381,13 @@ rm(points_stats_new)
 rm(points_stats)
 ```
 
-```{r,include = TRUE, warning=FALSE,message=FALSE, echo=FALSE}
+```{r,include = TRUE, warning=FALSE,message=FALSE, echo=FALSE,fig.width=10, fig.height=6}
 driver_stats = driver_stats %>% arrange(desc(tot_poits))
 driver_stats
 
 ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-tot_poits),y=tot_poits)) +
   geom_bar(aes(fill=tot_poits),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Top 30 piloti per punti totali")
 
 driver_stats = driver_stats %>% arrange(desc(tot_poits_new))
@@ -387,11 +395,11 @@ driver_stats
 
 ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-tot_poits_new),y=tot_poits_new)) +
   geom_bar(aes(fill=tot_poits_new),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Top 30 piloti per punti totali - stesso sitema di punteggio per ogni stagione")
 ```
 
-```{r,include = !knit_relazione, warning=FALSE,message=FALSE}
+```{r,include = !knit_relazione, warning=FALSE,message=FALSE,fig.width=10, fig.height=6}
 
 # Calcolo dei potenziali punti massimi raggiungibili nella carriera di un pilota
 driver_stats = driver_stats %>% mutate(tot_points_potential = races*25)
@@ -405,7 +413,7 @@ data
 
 ggplot(data=data[1:30,],aes(x= reorder(full_name,-points_ratio),y=points_ratio)) +
   geom_bar(aes(fill=points_ratio),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="% di punti ottenuti sul potenziale totale")
 ```
 
@@ -450,14 +458,14 @@ rm(constr,seasons_constr_winners,seasons_constr_count)
 
 ```
 
-```{r,include = TRUE, warning=FALSE,message=FALSE}
+```{r,include = TRUE, warning=FALSE,message=FALSE,fig.width=10, fig.height=6}
 
 constr_stats = constr_stats %>% arrange(desc(held_seasons))
 constr_stats
 
 ggplot(data=constr_stats[1:30,],aes(x= reorder(name,-held_seasons),y=held_seasons)) +
   geom_bar(aes(fill=held_seasons),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Top 30 scuderie per numero di campionati svolti")
 
 
@@ -466,7 +474,7 @@ data
 
 ggplot(data=data,aes(x= reorder(name,-win_seasons),y=win_seasons)) +
   geom_bar(aes(fill=win_seasons),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Classifica scuderie per campionati vinti")
 
 
@@ -475,10 +483,75 @@ constr_stats
 
 ggplot(data=data,aes(x= reorder(name,-seasons_win_ratio),y=seasons_win_ratio)) +
   geom_bar(aes(fill=seasons_win_ratio),stat = 'identity', show.legend = FALSE) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Rapporto campionati vinti/campionati svolti")
 
 ```
 
+```{r,include = TRUE, warning=FALSE,message=FALSE,fig.width=10, fig.height=6}
+# Test spidercharts con le stats dei driver
+
+max_races =         max(driver_stats$races)
+max_wins  =         max(driver_stats$wins)
+max_podiums =       max(driver_stats$podiums)
+max_tot_poits_new = max(driver_stats$tot_poits_new)
+max_podium_rate=    max(driver_stats$podium_rate)
+max_win_rate=       max(driver_stats$win_rate)
+max_points_ratio=   max(driver_stats$points_ratio)
+
+maxs = list(max_races,max_wins,max_podiums,max_tot_poits_new,1,1,1)
+mins = list(0,0,0,0,0,0,0)
+
+n_drivers = 6 # numero di piloti per cui plottare i grafici
+driver_stats = driver_stats %>% arrange(desc(tot_poits_new)) # ordino in base al criterio che considero migliore (per il ranking 1°,2°,3° etc)
 
 
+
+layout.matrix = matrix(c(1,2,3,4,5,6), nrow=2,ncol=3)
+layout(mat = layout.matrix, heights = c(1,1), widths = c(2,2,2))
+c <- par(mar=c(1,0,2,0),oma=c(0,0,0,0))
+
+for(i in 1:n_drivers){
+  
+test_data = driver_stats[i,] %>% select(races,wins,podiums,tot_poits_new,podium_rate,win_rate,points_ratio)
+name = driver_stats$full_name[i]
+
+data = rbind(maxs,mins,test_data)
+
+colnames(data) <- c("Gare disputate","Vittorie","Podi","Totale punti","Rateo podi","Rateo vittorie","Rateo punti")
+
+radarchart(data, axistype=0, 
+           
+    #polygon
+    pcol=rgb(0,0,0,0.9) , pfcol=rgb(255/255,0/255,0/255,0.5) , plwd=3,
+    
+    #grid
+    cglcol="grey", cglty=3, axislabcol="grey", cglwd=1,
+ 
+    #labels
+    vlcex=0.9,
+    title=name
+    )
+}
+#reset dei par
+par(c)
+
+```
+```{r,include = TRUE, warning=FALSE,message=FALSE}
+# Test circular barplot con statistiche scuderie (costruttori)
+
+constr_stats = constr_stats %>% arrange(desc(held_seasons))
+constr_stats
+
+ggplot(data=constr_stats[1:30,],aes(x= reorder(name,-held_seasons),y=held_seasons)) +
+  geom_bar(aes(fill=held_seasons),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1)) +
+  labs(x="",y="",title="Top 30 scuderie per numero di campionati svolti") +
+  coord_polar() + ylim(-50,75)
+
+```
+
+```{r,include = TRUE, warning=FALSE,message=FALSE}
+
+
+```

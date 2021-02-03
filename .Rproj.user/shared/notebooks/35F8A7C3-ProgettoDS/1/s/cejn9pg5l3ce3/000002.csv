@@ -1,0 +1,6 @@
+"0",""
+"0","ggplot(data=season_rank_system_data[],aes(x= reorder(year,year),y=points_per_win)) +"
+"0","  geom_bar(position = ""dodge"", aes(fill=points_per_win),stat = 'identity', show.legend = FALSE) +"
+"0","  theme(axis.text.x = element_text(angle=90, vjust=1, hjust=1,size=9)) +"
+"0","  labs(x="""",y="""",title=""Punti per vittoria - diversi sistemi di punteggio"")"
+"0",""

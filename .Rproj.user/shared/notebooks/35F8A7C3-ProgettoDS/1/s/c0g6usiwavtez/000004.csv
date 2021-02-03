@@ -1,0 +1,5 @@
+"0",""
+"0","ggplot(data=constr_stats[1:30,],aes(x= reorder(name,-held_seasons),y=held_seasons)) +"
+"0","  geom_bar(aes(fill=held_seasons),stat = 'identity', show.legend = FALSE) +"
+"0","  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1,size=12)) +"
+"0","  labs(x="""",y="""",title=""Top 30 scuderie per numero di campionati svolti"")"

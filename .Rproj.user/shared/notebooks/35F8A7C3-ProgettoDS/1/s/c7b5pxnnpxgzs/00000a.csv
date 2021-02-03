@@ -1,2 +1,0 @@
-"2","r error 4 (R code execution error)"
-"0","constr_stats = constr_stats %>% mutate(seasons_win_ratio=win_seasons/held_seasons)"

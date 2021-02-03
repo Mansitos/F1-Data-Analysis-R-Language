@@ -1,6 +1,0 @@
-"0",""
-"0","ggplot(data=data,aes(x= reorder(name,-seasons_win_ratio),y=seasons_win_ratio)) +"
-"0","  geom_bar(aes(fill=seasons_win_ratio),stat = 'identity', show.legend = FALSE) +"
-"0","  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1)) +"
-"0","  labs(x="""",y="""",title=""Rapporto campionati vinti/campionati svolti"")"
-"0",""

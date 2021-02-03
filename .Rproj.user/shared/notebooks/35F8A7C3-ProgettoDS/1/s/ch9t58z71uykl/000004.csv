@@ -1,0 +1,5 @@
+"0",""
+"0","ggplot(data=country_stats[0:25,],aes(x= reorder(country,-score),y=score)) +"
+"0","  geom_bar(aes(fill=score),stat = 'identity', show.legend = FALSE) +"
+"0","  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1,size=12)) +"
+"0","  labs(x="""",y="""",title=""Top 25 nazioni più presenti nella storia della F1"")"
