@@ -1,3 +1,5 @@
+"0","# IMPORTANTE: attenzione, molti ""blocchi"" di codice dipendono da quelli precedenti e sovrascrivono alcuni dati, quindi è fondamentale eseguire il codice in successione, dall'inizio alla fine (Restart R and run all chunks)"
+"0",""
 "0","knitr::opts_chunk$set(echo = TRUE)"
 "0",""
 "0","# Se true -> knitting della relazione, un sacco di porzioni NON vanno incluse"
