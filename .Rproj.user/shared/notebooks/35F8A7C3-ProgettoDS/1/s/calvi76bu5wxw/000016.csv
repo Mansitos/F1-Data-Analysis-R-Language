@@ -1,7 +1,0 @@
-"0",""
-"0","# per il plot del podium_rate considero i piloti con almeno 100 gare, altrimenti in cima alla classifica avrei piloti con 1 gara vinta su 1 (ad esempio)... troppo facile :)"
-"0","driver_stats_with_100_races = driver_stats %>% filter(races>99)"
-"0",""
-"0","# podium rate for drivers with at least 100 races held"
-"0","driver_stats_with_100_races = driver_stats_with_100_races %>% arrange(desc(podium_rate))"
-"0","driver_stats_with_100_races"

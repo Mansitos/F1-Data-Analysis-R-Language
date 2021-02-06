@@ -1,1 +1,0 @@
-{"frames":[],"message":"Error in country_stats %>% mutate(score = score_multiplier * ((drivers/tot_drivers) *  : \n  non trovo la funzione \"%>%\"\n"}

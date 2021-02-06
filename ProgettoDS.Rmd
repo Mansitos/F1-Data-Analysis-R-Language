@@ -27,6 +27,8 @@ library(tibble)
 library(dplyr)
 library(fmsb)
 library(viridis)
+library(wordcloud)
+library(wesanderson)
 ```
 
 ```{r, include = !knit_relazione,message=FALSE,warning=FALSE}
@@ -152,7 +154,7 @@ driver_stats = driver_stats %>% mutate(full_name = paste(forename,surname)) %>% 
 driver_stats
 ```
 
-```{r,include = TRUE, warning=FALSE,message=FALSE, echo=FALSE,fig.width=10, fig.height=6}
+```{r,include = TRUE, warning=FALSE,message=FALSE, echo=!knit_relazione,fig.width=10, fig.height=6}
 
 # Plot delle informazioni ricevute per i piloti (top 30)
 
@@ -262,7 +264,7 @@ season_rank_system_data = season_rank_system_data %>% rename(points_per_win=poin
 
 ```
 
-```{r,include = TRUE, warning=FALSE,message=FALSE, echo=FALSE,fig.width=10, fig.height=6}
+```{r,include = TRUE, warning=FALSE,message=FALSE, echo=!knit_relazione,fig.width=10, fig.height=6}
 
 ggplot(data=season_rank_system_data[],aes(x= reorder(year,year),y=points_per_win)) +
   geom_bar(position = "dodge", aes(fill=points_per_win),stat = 'identity', show.legend = FALSE) +
@@ -271,7 +273,7 @@ ggplot(data=season_rank_system_data[],aes(x= reorder(year,year),y=points_per_win
 
 ```
 
-```{r,include = TRUE, warning=FALSE,message=FALSE, echo=FALSE}
+```{r,include = TRUE, warning=FALSE,message=FALSE, echo=!knit_relazione}
 
 # NORMALIZZAZIONE dei dati relativi ai punteggi. Idea: assegnare a ciascun risultato dal 1950 al 2020 i punti del sistema 2020, così da premiare ciascuna posizione
 # con lo stesso numero di punti
@@ -310,7 +312,7 @@ rm(points_stats_new)
 rm(points_stats)
 ```
 
-```{r,include = TRUE, warning=FALSE,message=FALSE, echo=FALSE,fig.width=10, fig.height=6}
+```{r,include = TRUE, warning=FALSE,message=FALSE, echo=!knit_relazione,fig.width=10, fig.height=6}
 driver_stats = driver_stats %>% arrange(desc(tot_points))
 driver_stats
 
@@ -488,7 +490,7 @@ n_drivers = 6 # numero di piloti per cui plottare i grafici
 driver_stats = driver_stats %>% arrange(desc(tot_points_new)) # ordino in base al criterio che considero migliore (per il ranking 1°,2°,3° etc)
 ```
 
-```{r,include = TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=10, fig.height=6}
+```{r,include = TRUE, warning=FALSE,echo=!knit_relazione,message=FALSE,fig.width=10, fig.height=6}
 layout.matrix = matrix(c(1,4,2,5,3,6), nrow=2,ncol=3)
 layout(mat = layout.matrix, heights = c(1,1), widths = c(2,2,2))
 c <- par(mar=c(1,0,2,0),oma=c(0,0,0,0))
@@ -524,7 +526,7 @@ par(c)
 ```
 
 
-```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=10, fig.height=6}
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=!knit_relazione,fig.width=10, fig.height=6}
 
 # Plot top nazionalità per num piloti
 
@@ -608,7 +610,7 @@ sum(country_stats$score,na.rm=TRUE) == score_multiplier
 ```
 
 
-```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=10, fig.height=6}
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=!knit_relazione,fig.width=10, fig.height=6}
 # Plot top 25 nazioni per score
 
 country_stats = country_stats %>% arrange(desc(score))
@@ -645,7 +647,7 @@ n_country = 6 # numero di nazioni per cui plottare i grafici
 country_stats = country_stats %>% arrange(desc(score)) # ordino in base al criterio che considero migliore (per il ranking 1°,2°,3° etc)
 ```
 
-```{r,include = TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=10, fig.height=6}
+```{r,include = TRUE, warning=FALSE,echo=!knit_relazione,message=FALSE,fig.width=10, fig.height=6}
 
 layout.matrix = matrix(c(1,4,2,5,3,6), nrow=2,ncol=3)
 layout(mat = layout.matrix, heights = c(1,1), widths = c(2,2,2))
@@ -676,4 +678,79 @@ radarchart(data, axistype=0,
 }
 #reset dei par
 par(c)
+```
+
+```{r,include = TRUE, warning=FALSE,echo=!knit_relazione,message=FALSE,fig.width=10, fig.height=6}
+# World cloud test con nazioni
+
+wordcloud(country_stats$country,country_stats$score,scale=c(10,0.5),max.words = length(country_stats$country),random.order=FALSE,rot.per=0.25,ordered.colors = FALSE,random.color = TRUE)
+
+```
+
+```{r,include = TRUE, warning=FALSE,echo=!knit_relazione,message=FALSE,fig.width=10, fig.height=5}
+
+library("rnaturalearth")
+library("rnaturalearthdata")
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+class(world)
+
+# correggo UK e USA in united kingdom e united states
+country_stats_copy = country_stats %>% mutate(country=replace(country,country=="UK","United Kingdom")) %>% mutate(country=replace(country,country=="USA","United States of America"))
+
+world = world %>% rename(country=sovereignt)
+world = full_join(world,country_stats_copy, by="country")
+
+ggplot(data = world) +
+    geom_sf(aes(fill = score)) +
+    scale_color_gradient2() +
+    coord_sf(xlim = c(-170, 170), ylim = c(-60, 80), expand = FALSE)
+  
+
+ggplot(data = world) +
+    geom_sf(aes(fill = score)) +
+    scale_color_gradient2() +
+    coord_sf(xlim = c(-20, 50), ylim = c(30, 70), expand = FALSE)
+```
+
+```{r,include = TRUE, warning=FALSE,echo=!knit_relazione,message=FALSE,fig.width=10, fig.height=5}
+# Calcolo KM totali percorsi in F1
+# Mi baso sul n° di km da percorrere per ciascun gran premio (in base ai vari regolamenti dei vari anni) (dati trovati su internet)
+# il n° è una stima dei km percorsi da ogni pilota (che ha completato la gara) in ogni grand prix di quella stagione, qualora il regolamento prevedesse dei range (vedi 300-500) si è usato il valore medio (400)
+grand_prix_km_v1 <- as_tibble(read_csv("data\\grand_prix_km.txt"))
+grand_prix_km_v1$year = as.numeric(grand_prix_km_v1$year)
+
+races_km = races %>% select(year,raceId)
+races_km = inner_join(races_km,grand_prix_km_v1,by="year")
+
+# Ora per ciascuna gara conto il numero di piloti che l'hanno percorsa
+counts = results %>% select(driverId,raceId) %>% count(raceId) %>% rename(partecipants=n)
+
+# Calcolo per ciascuna gara il n° totale di km percorsi dai partecipanti (rimuovendo il 5% di scarto: ritiri, incidenti, etc.)
+
+races_km = inner_join(races_km,counts,by="raceId") %>% mutate(tot_km=partecipants*estimated_tot_km_per_driver*0.95)
+
+tot_f1_km_percorsi = sum(races_km$tot_km)
+
+circonferenza_terra=40075
+circonferenza_sole=4379000
+distanza_marte_terra=187640000
+
+terre_percorse=tot_f1_km_percorsi/circonferenza_terra
+soli_percorsi=tot_f1_km_percorsi/circonferenza_sole
+distanze_m_t=tot_f1_km_percorsi/distanza_marte_terra
+
+
+tot_f1_km_percorsi
+terre_percorse
+soli_percorsi
+distanze_m_t
+
+rm(grand_prix_km_v1,counts,races_km)
+
+
+```
+
+```{r, out.width = "525px",echo=FALSE,fig.align='center'}
+knitr::include_graphics("imgs\\distances_img.jpg")
 ```
