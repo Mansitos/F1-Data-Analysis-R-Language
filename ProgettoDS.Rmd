@@ -36,13 +36,14 @@ library(wesanderson)
 
 # NB: errore in riga 4376 dataset driverStand: corretto manualmente
 # NB: errore in riga 23765 dataset results: corretto manualmente
+# NB: errore dataset driverstandings, convertito int txt e funziona...
 
 circuits <- as_tibble(read_csv("data\\circuits.csv"))
 constrRes <- as_tibble(read_csv("data\\constructorResults.csv"))
 constr <- as_tibble(read_csv("data\\constructors.csv"))
 constrStand <- as_tibble(read_csv("data\\constructorStandings.csv"))
 drivers <- as_tibble(read_csv("data\\drivers.csv"))
-driverStand <- as_tibble(read_csv("data\\driverStandings.csv"))
+driverStand <- as_tibble(read_csv("data\\driverStandings.txt"))
 lapTimes <- as_tibble(read_csv("data\\lapTimes.csv"))
 pits <- as_tibble(read_csv("data\\pitStops.csv"))
 quali <- as_tibble(read_csv("data\\qualifying.csv"))
@@ -52,7 +53,9 @@ seasons <- as_tibble(read_csv("data\\seasons.csv"))
 status <- as_tibble(read_csv("data\\status.csv"))
 
 ```
-
+```{r, out.width = "1440px",echo=FALSE,fig.align='center'}
+knitr::include_graphics("imgs\\stats_img.jpg")
+```
 
 ```{r,include = !knit_relazione, warning=FALSE,message=FALSE}
 
@@ -446,16 +449,33 @@ driver_stats[is.na(driver_stats)] <- 0
 # pole ratio, calcolo
 driver_stats = driver_stats %>% mutate(pole_ratio=pole_positions/races)
 
-# pole number plot
-driver_stats = driver_stats %>% arrange(desc(pole_positions))
-driver_stats
+# similmente calcolo partenze dalla seconda posizione per ciascun pilota
+pole2 <- results %>% filter(grid==2) %>% select(driverId,grid) %>% count(driverId) %>% rename("second_in_grid"=n)
+driver_stats = full_join(driver_stats,pole2)
+driver_stats[is.na(driver_stats)] <- 0
+
+# data cleaning
+rm(pole,pole2)
 ```
 
 ```{r,include = TRUE, warning=FALSE,message=FALSE}
+# pole number plot
+driver_stats = driver_stats %>% arrange(desc(pole_positions))
+driver_stats
+
 ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-pole_positions),y=pole_positions)) +
   geom_bar(aes(fill=pole_positions),stat = 'identity', show.legend = FALSE) +
   theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
   labs(x="",y="",title="Top 30 piloti per n° di pole positions")
+
+# 2nd in grid number plot
+driver_stats = driver_stats %>% arrange(desc(second_in_grid))
+driver_stats
+
+ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-second_in_grid),y=second_in_grid)) +
+  geom_bar(aes(fill=second_in_grid),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
+  labs(x="",y="",title="Top 30 piloti per n° di partenze in 2° posizione")
 
 # pole ratio plot
 data = driver_stats %>% arrange(desc(pole_ratio)) %>% filter(races>25)
@@ -676,8 +696,10 @@ radarchart(data, axistype=0,
     title=paste(name," (",toString(i),"°)",sep="")
     )
 }
-#reset dei par
+
+# reset dei par e pulizia ambiente
 par(c)
+rm(c,layout.matrix,maxs,mins,test_data)
 ```
 
 ```{r,include = TRUE, warning=FALSE,echo=!knit_relazione,message=FALSE,fig.width=10, fig.height=6}
@@ -711,6 +733,9 @@ ggplot(data = world) +
     geom_sf(aes(fill = score)) +
     scale_color_gradient2() +
     coord_sf(xlim = c(-20, 50), ylim = c(30, 70), expand = FALSE)
+
+# rimozione dei dati
+rm(world)
 ```
 
 ```{r,include = TRUE, warning=FALSE,echo=!knit_relazione,message=FALSE,fig.width=10, fig.height=5}
@@ -751,6 +776,58 @@ rm(grand_prix_km_v1,counts,races_km)
 
 ```
 
-```{r, out.width = "525px",echo=FALSE,fig.align='center'}
+```{r, out.width = "1440px",echo=FALSE,fig.align='center'}
 knitr::include_graphics("imgs\\distances_img.jpg")
+```
+
+```{r,include = !knit_relazione, warning=FALSE,echo=!knit_relazione,message=FALSE,fig.width=10, fig.height=5}
+# Calcolo stagioni vinte da piloti e da costruttori
+
+# ottengo l'anno delle gare
+years = races %>% select(year,raceId)
+
+# piloti
+seasons_win = inner_join(driverStand,years,by="raceId") %>% select(driverId,year,position,raceId) %>% filter(position==1) %>% group_by(year) %>% top_n(1,raceId) %>% select(driverId,year)
+
+seasons_win_count = seasons_win  %>% group_by(driverId) %>% count(driverId)
+
+driver_stats = full_join(driver_stats,seasons_win_count,by="driverId") %>% rename(championship=n)
+
+driver_stats[is.na(driver_stats)] <- 0 # NA to zeros
+rm(seasons_win,seasons_win_count)
+
+# costruttori
+seasons_win = inner_join(constrStand,years,by="raceId") %>% select(constructorId,year,position,raceId) %>% filter(position==1) %>% group_by(year) %>% top_n(1,raceId) %>% select(constructorId,year)
+
+seasons_win_count = seasons_win  %>% group_by(constructorId) %>% count(constructorId)
+
+constr_stats = full_join(constr_stats,seasons_win_count,by="constructorId") %>% rename(championship=n)
+
+constr_stats[is.na(constr_stats)] <- 0 # NA to zeros
+rm(seasons_win,seasons_win_count)
+
+```
+
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=!knit_relazione,fig.width=10, fig.height=6}
+# Plot top piloti per n° di campionati vinti
+
+data = driver_stats  %>% arrange(desc(championship)) %>% filter(championship>0)
+data
+
+ggplot(data=data,aes(x= reorder(full_name,championship),y=championship)) +
+  geom_bar(aes(fill=championship),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +
+  labs(x="",y="",title="Classifica piloti per n° di titoli mondiali") +
+  coord_flip()
+
+# Plot top costruttori per n° di campionati vinti
+data = constr_stats  %>% arrange(desc(championship)) %>% filter(championship>0)
+data
+
+ggplot(data=data,aes(x= reorder(name,championship),y=championship)) +
+  geom_bar(aes(fill=championship),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +
+  labs(x="",y="",title="Classifica costruttori per n° di titoli mondiali") +
+  coord_flip()
+
 ```
