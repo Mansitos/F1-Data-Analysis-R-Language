@@ -29,6 +29,8 @@ library(fmsb)
 library(viridis)
 library(wordcloud)
 library(wesanderson)
+library(gridExtra)
+
 ```
 
 ```{r, include = !knit_relazione,message=FALSE,warning=FALSE}
@@ -886,8 +888,64 @@ With the advent of the hybrid era (2014-present) was dominated by Mercedes and b
 Hamilton is the first one to break Shumacher’s records and is currently considered the best F1 driver.
 
 # Who is the most dominant driver of all time?
+Which driver has dominated the circuits during the history of Formula One? It's difficult to tell, but data can help us! Often drivers are compared taking into consideration only simple metrics, such as: *races won*, *world titles* and so on. Surely those metrics reflect the skill of the driver, however they are superficial evaluation criteria. For example, consider the case in which the driver $a$ has won 100 races out of 500 and driver $b$ has won 70 races out of 120. Would you still say that driver $a$ is better than driver $b$ just because he has won more races? The data collected during these 71 years can help us build a more advanced evaluation system, based on multiple parameters, which will allow us to evaluate drivers in a more transparent and objective way. Let's start by showing some basic drivers summaries which we will use later the performance of drivers.
 
-# Which are the most relevent manufacturers?
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=!knit_relazione,fig.width=10, fig.height=5,fig.align='center'}
+# plot campionati e gare
+
+driver_stats = driver_stats %>% arrange(desc(wins))
+
+x = ggplot(data=driver_stats[1:20,],aes(x= reorder(full_name,-wins),y=wins)) +
+  geom_bar(aes(fill=wins),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10), plot.margin = margin(0.2, 0, 0, 0.25, "cm")) +
+  scale_y_continuous(breaks = pretty(driver_stats$wins, n = 10)) +
+  labs(x="",y="",title="Top 20 piloti per n° vittorie")
+
+data = driver_stats  %>% arrange(desc(championship)) %>% filter(championship>0)
+
+y = ggplot(data=data,aes(x= reorder(full_name,-championship),y=championship)) +
+  geom_bar(aes(fill=championship),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0.25, 0.2, 0, "cm")) +
+  scale_y_continuous(breaks = pretty(driver_stats$championship, n = 5)) +
+  labs(x="",y="",title="Top 30 piloti per n° titoli")
+
+grid.arrange(x,y, ncol=2,widths=c(0.8,1))
+
+```
+
+A significant metric in evaluating a driver's skill is the *amount of points* cumulated during their career. However, there is a  problem: *scoring systems* have changed over the years, so it is a little unfair to draw too many conclusions by simply considering the sum of total points scored by each driver. In the following plot whe can see how points system have changed during the history of Formula One.
+
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=!knit_relazione,fig.width=10, fig.height=5,fig.align='center'}
+# plot punti
+ggplot(data=season_rank_system_data[],aes(x= reorder(year,year),y=points_per_win)) +
+  geom_bar(position = "dodge", aes(fill=points_per_win),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=90, vjust=1, hjust=1,size=9)) +
+  labs(x="",y="",title="Punti per vittoria - diversi sistemi di punteggio")
+```
+
+You can see the significant step in maximum points available in 2010 when the points changed from 10 points for a win to 25. 
+It's clear how evaluating drivers on the basis of the total points would be a dishonest method towards the pilots prior to 2010.
+
+A more fair approach is the following: recalculate the points awarded by drivers for each race in the history of Formula 1 always using the same scoring system. To normalize data we will use the currently used score system (but whithout the *fastest lap bonus point* rule, introduced in 2019). The points are awarded for the top 10 drivers in the following pattern: 1st gets 25, 2nd gets 18,15,12,10,8,6,4,2,1. The following two graphs show the ranking of the drivers by total points, before and after the data normalization.
+
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=!knit_relazione,fig.width=10, fig.height=5,fig.align='center'}
+# plot punti pre vs punti normalized
+driver_stats = driver_stats %>% arrange(desc(tot_points))
+
+x = ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-tot_points),y=tot_points)) +
+  geom_bar(aes(fill=tot_points),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10), plot.margin = margin(0.2, 0, 0, 0.25, "cm")) +
+  labs(x="",y="",title="Top 30 piloti per punti totali")
+
+driver_stats = driver_stats %>% arrange(desc(tot_points_new))
+
+y =ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-tot_points_new),y=tot_points_new)) +
+  geom_bar(aes(fill=tot_points_new),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0.25, 0.2, 0, "cm")) +
+  labs(x="",y="",title="Top 30 piloti per punti totali - stesso sitema di punteggio per ogni stagione")
+
+grid.arrange(x,y, ncol=2,widths=c(1,1))
+```
 
 # What if we had to give a flag to F1?
 
@@ -905,9 +963,81 @@ knitr::include_graphics("imgs\\stats_img.jpg")
 knitr::include_graphics("imgs\\distances_img.jpg")
 ```
 
+grid.arrange(plot1, plot2, ncol=2)
+
+```{r,include = !knit_relazione, warning=FALSE,message=FALSE, echo=!knit_relazione,fig.width=10, fig.height=6}
+
+# Plot delle informazioni ricevute per i piloti (top 30)
+
+
+# races held
+driver_stats = driver_stats %>% arrange(desc(races))
+driver_stats
+
+ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-races),y=races)) +
+  geom_bar(aes(fill=races),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
+  labs(x="",y="",title="Top 30 piloti per n° di gare disputate")
+
+# wins plot
 
 
 
+
+# 2nd place plot
+
+driver_stats = driver_stats %>% arrange(desc(second))
+driver_stats
+
+ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-second),y=second)) +
+  geom_bar(aes(fill=second),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
+  labs(x="",y="",title="Top 30 piloti per 2° posto")
+
+
+# 3nd place plot
+
+driver_stats = driver_stats %>% arrange(desc(third))
+driver_stats
+
+ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-third),y=third)) +
+  geom_bar(aes(fill=third),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
+  labs(x="",y="",title="Top 30 piloti per 3° posto")
+
+# totale podi plot
+driver_stats = driver_stats %>% arrange(desc(podiums))
+driver_stats
+
+ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-podiums),y=podiums)) +
+  geom_bar(aes(fill=podiums),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
+  labs(x="",y="",title="Top 30 piloti per n° di podi totali")
+
+# per il plot del podium_rate considero i piloti con almeno 100 gare, altrimenti in cima alla classifica avrei piloti con 1 gara vinta su 1 (ad esempio)... troppo facile :)
+driver_stats_with_100_races = driver_stats %>% filter(races>99)
+
+# podium rate for drivers with at least 100 races held
+driver_stats_with_100_races = driver_stats_with_100_races %>% arrange(desc(podium_rate))
+driver_stats_with_100_races
+
+ggplot(data=driver_stats_with_100_races[1:30,],aes(x= reorder(full_name,-podium_rate),y=podium_rate)) +
+  geom_bar(aes(fill=podium_rate),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
+  labs(x="",y="",title="Top 30 piloti per rapporto podi/gare disputate (con almeno 100 gare disputate)")
+
+# win rate for drivers with at least 100 races held
+driver_stats_with_100_races = driver_stats_with_100_races %>% arrange(desc(win_rate))
+driver_stats_with_100_races
+
+ggplot(data=driver_stats_with_100_races[1:30,],aes(x= reorder(full_name,-win_rate),y=win_rate)) +
+  geom_bar(aes(fill=win_rate),stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, "cm")) +
+  labs(x="",y="",title="Top 30 piloti per rapporto vittorie/gare disputate (con almeno 100 gare disputate)")
+
+rm(driver_stats_with_100_races)
+
+```
 
 
 

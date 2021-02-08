@@ -1,0 +1,47 @@
+"2","r error 4 (R code execution error)"
+"0","# Loading libraries"
+"0",""
+"0","library(ggplot2)"
+"2","package ‘ggplot2’ was built under R version 4.0.3"
+"0","library(readr)"
+"0","library(tibble)"
+"0","library(dplyr)"
+"2","
+Attaching package: ‘dplyr’
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"0","library(fmsb)"
+"2","package ‘fmsb’ was built under R version 4.0.3"
+"0","library(viridis)"
+"2","package ‘viridis’ was built under R version 4.0.3"
+"2","Carico il pacchetto richiesto: viridisLite
+"
+"2","package ‘viridisLite’ was built under R version 4.0.3"
+"0","library(wordcloud)"
+"2","package ‘wordcloud’ was built under R version 4.0.3"
+"2","Carico il pacchetto richiesto: RColorBrewer
+"
+"2","package ‘RColorBrewer’ was built under R version 4.0.3"
+"0","library(wesanderson)"
+"2","package ‘wesanderson’ was built under R version 4.0.3"
+"0","library(gridExtra)"
+"2","package ‘gridExtra’ was built under R version 4.0.3"
+"2","
+Attaching package: ‘gridExtra’
+
+"
+"2","The following object is masked from ‘package:dplyr’:
+
+    combine
+
+"

@@ -1,0 +1,5 @@
+"0",""
+"0","ggplot(data=driver_stats[1:30,],aes(x= reorder(full_name,-tot_points_new),y=tot_points_new)) +"
+"0","  geom_bar(aes(fill=tot_points_new),stat = 'identity', show.legend = FALSE) +"
+"0","  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5), plot.margin = margin(0.2, 0.5, 0, 0.6, ""cm"")) +"
+"0","  labs(x="""",y="""",title=""Top 30 piloti per punti totali - stesso sitema di punteggio per ogni stagione"")"
