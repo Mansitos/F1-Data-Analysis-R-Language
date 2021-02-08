@@ -1,0 +1,7 @@
+"2","r error 4 (R code execution error)"
+"0","driver_stats = driver_stats %>% mutate(performance_with_bonus = score*(1+car_reliability_bonus_percentage))"
+"2","Errore: Problem with `mutate()` input `performance_with_bonus`.
+[31mx[39m oggetto ""score"" non trovato
+[34mi[39m Input `performance_with_bonus` is `score * (1 + car_reliability_bonus_percentage)`.
+[90mRun `rlang::last_error()` to see where the error occurred.[39m
+"

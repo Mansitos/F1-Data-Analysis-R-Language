@@ -1,0 +1,6 @@
+"2","r error 4 (R code execution error)"
+"0","ggplot(data=retire_per_year_stats[],aes(x= reorder(year,year),y=1-retire_ratio)) +"
+"0","  geom_bar(position = ""dodge"", aes(fill=retire_ratio),stat = 'identity', show.legend = FALSE) +"
+"0","  theme(axis.text.x = element_text(angle=90, vjust=1, hjust=1,size=9)) +"
+"0","  labs(x="""",y="""",title=""% di completamento gara"")"
+"0",""
