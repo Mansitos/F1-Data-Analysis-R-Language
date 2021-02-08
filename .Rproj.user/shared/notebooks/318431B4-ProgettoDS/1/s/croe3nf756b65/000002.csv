@@ -3,6 +3,8 @@
 "0",""
 "0","library(ggplot2)"
 "2","package ‘ggplot2’ was built under R version 4.0.3"
+"2","RStudio Community is a great place to get help: https://community.rstudio.com/c/tidyverse
+"
 "0","library(readr)"
 "0","library(tibble)"
 "0","library(dplyr)"
