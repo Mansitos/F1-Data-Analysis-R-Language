@@ -1,4 +1,0 @@
-"0",""
-"0","# win rate for drivers with at least 100 races held"
-"0","driver_stats_with_100_races = driver_stats_with_100_races %>% arrange(desc(win_rate))"
-"0","driver_stats_with_100_races"

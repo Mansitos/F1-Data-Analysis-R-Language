@@ -29,6 +29,8 @@ library(fmsb)
 library(viridis)
 library(wordcloud)
 library(wesanderson)
+library(gridExtra)
+
 ```
 
 ```{r, include = !knit_relazione,message=FALSE,warning=FALSE}
@@ -905,7 +907,7 @@ knitr::include_graphics("imgs\\stats_img.jpg")
 knitr::include_graphics("imgs\\distances_img.jpg")
 ```
 
-
+grid.arrange(plot1, plot2, ncol=2)
 
 
 

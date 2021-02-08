@@ -1,3 +1,0 @@
-"2","r error 4 (R code execution error)"
-"0","# --- Conto il numero di campionati svolti per scuderia (introdotti nel 1958)"
-"0","seasons_constr_count = unique(inner_join(results,races,by='raceId') %>% select(year,constructorId)) %>% count(constructorId) %>% rename(held_seasons=n) %>% arrange(desc(held_seasons))"

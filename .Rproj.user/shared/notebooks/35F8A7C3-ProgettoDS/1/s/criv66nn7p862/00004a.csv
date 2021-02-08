@@ -1,4 +1,0 @@
-"0",""
-"0","# totale podi plot"
-"0","driver_stats = driver_stats %>% arrange(desc(podiums))"
-"0","driver_stats"
