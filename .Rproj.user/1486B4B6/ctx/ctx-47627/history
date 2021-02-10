@@ -1,0 +1,512 @@
+ggplot(data=country_stats[1:20,],aes(x= reorder(country,-drivers),y=drivers)) +
+geom_bar(aes(fill=drivers),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5)) +
+labs(x="",y="",title="Top 20 nazioni per n° di piloti")
+# Plot top nazionalità per gare disputate
+country_stats = country_stats %>% arrange(desc(held_races))
+ggplot(data=country_stats[1:20,],aes(x= reorder(country,-held_races),y=held_races)) +
+geom_bar(aes(fill=held_races),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5)) +
+labs(x="",y="",title="Top 20 nazioni per n° di gare disputate")
+# Plot top nazionalità per num circuiti
+country_stats = country_stats %>% arrange(desc(circuits_used))
+ggplot(data=country_stats[1:20,],aes(x= reorder(country,-circuits_used),y=circuits_used)) +
+geom_bar(aes(fill=circuits_used),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5)) +
+labs(x="",y="",title="Top 20 nazioni per n° circuiti utilizzati")
+# --- Aggiorno le statistiche sulle nazioni
+# gare svolte da piloti, per nazionalità
+held_races_per_country = driver_stats %>% select(country,races)
+held_races_per_country = aggregate(held_races_per_country$races,by=list(country=held_races_per_country$country),FUN=sum) %>% rename(held_races_by_drivers=x)
+# campionati svolti dai costruttori, per nazionalità
+held_seasons_per_constr = aggregate(constr_stats$held_seasons,by=list(country=constr_stats$country),FUN=sum) %>% rename(held_seasons_by_constr=x)
+# merge dei dati
+country_stats = full_join(country_stats,held_races_per_country,by="country")
+country_stats = full_join(country_stats,held_seasons_per_constr,by="country")
+country_stats[is.na(country_stats)] <- 0 # NA to zeros
+rm(constr_per_country,held_races_per_country,held_seasons_per_constr) # data clean
+country_stats
+# Calcolo di un punteggio per le nazioni ("nazione più significativa/presente nella F1 negli ultimi 70 anni")
+# Pesi delle varie statistiche (la somma deve dare 1.0)
+weight_drivers = 0;
+weight_constr = 0;
+weight_held_races = 0.3;
+weight_circuits_used = 0.0;
+weight_held_races_by_drivers = 0.4;
+weight_held_seasons_by_constr = 0.3;
+tot_drivers = sum(country_stats$drivers,na.rm = TRUE)
+tot_constr = sum(country_stats$constructors,na.rm = TRUE)
+tot_held_races = sum(country_stats$held_races,na.rm = TRUE)
+tot_circuits_used = sum(country_stats$circuits_used,na.rm = TRUE)
+tot_held_races_by_drivers = sum(country_stats$held_races_by_drivers,na.rm = TRUE)
+tot_held_seasons_by_constr = sum(country_stats$held_seasons_by_constr,na.rm = TRUE)
+score_multiplier=1000
+country_stats <- country_stats %>% mutate(score= score_multiplier*(
+(drivers/tot_drivers)*weight_drivers +
+(constructors/tot_constr)*weight_constr +
+(held_races/tot_held_races)*weight_held_races +
+(circuits_used/tot_circuits_used)*weight_circuits_used +
+(held_races_by_drivers/tot_held_races_by_drivers)*weight_held_races_by_drivers +
+(held_seasons_by_constr/tot_held_seasons_by_constr)*weight_held_seasons_by_constr))
+1 == weight_drivers + weight_constr +weight_held_races +weight_circuits_used +weight_held_races_by_drivers +weight_held_seasons_by_constr
+sum(country_stats$score,na.rm=TRUE) == score_multiplier
+# Plot top 25 nazioni per score
+country_stats = country_stats %>% arrange(desc(score))
+country_stats
+ggplot(data=country_stats[0:25,],aes(x= reorder(country,-score),y=score)) +
+geom_bar(aes(fill=score),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=10.5)) +
+labs(x="",y="",title="Top 25 nazioni più presenti nella storia della F1")
+ggplot(data=country_stats[0:25,],aes(x= reorder(country,score),y=score)) +
+geom_bar(aes(fill=score),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +
+labs(x="",y="",title="test horizontal barplot") +
+coord_flip()
+# Test spidercharts con le stats delle nazioni
+max_drivers                = max(country_stats$drivers)
+max_constr                 = max(country_stats$constructors)
+max_held_races             = max(country_stats$held_races)
+max_circuits_used          = max(country_stats$circuits_used)
+max_held_races_by_drivers  = max(country_stats$held_races_by_drivers)
+max_held_seasons_by_constr = max(country_stats$held_seasons_by_constr)
+maxs = list(max_drivers,max_constr,max_held_races,max_circuits_used,max_held_races_by_drivers,max_held_seasons_by_constr)
+mins = list(0,0,0,0,0,0)
+n_country = 6 # numero di nazioni per cui plottare i grafici
+country_stats = country_stats %>% arrange(desc(score)) # ordino in base al criterio che considero migliore (per il ranking 1°,2°,3° etc)
+layout.matrix = matrix(c(1,4,2,5,3,6), nrow=2,ncol=3)
+layout(mat = layout.matrix, heights = c(1,1), widths = c(2,2,2))
+c <- par(mar=c(1,0,2,0),oma=c(0,0,0,0))
+for(i in 1:n_country){
+test_data = country_stats[i,] %>% select(drivers,constructors,held_races,circuits_used,held_races_by_drivers,held_seasons_by_constr)
+name = country_stats$country[i]
+data = rbind(maxs,mins,test_data)
+colnames(data) <- c("Piloti","Costruttori \n","\n\n Gare disputate \n su circuiti","Circuiti","\n\n Gare disputate \n da piloti","Stagioni svolte \n da costruttori \n\n")
+radarchart(data, axistype=0,
+#polygon
+pcol=rgb(0/255,0/255,0/255,0.9) , pfcol=rgb(0/255,200/255,0/255,0.4) , plwd=3,
+#grid
+cglcol="grey", cglty=3, axislabcol="grey", cglwd=1,
+#labels
+vlcex=0.9,
+title=paste(name," (",toString(i),"°)",sep="")
+)
+}
+# reset dei par e pulizia ambiente
+par(c)
+rm(c,layout.matrix,maxs,mins,test_data)
+# World cloud test con nazioni
+wordcloud(country_stats$country,country_stats$score,scale=c(10,0.5),max.words = length(country_stats$country),random.order=FALSE,rot.per=0.25,ordered.colors = FALSE,random.color = TRUE)
+library("rnaturalearth")
+library("rnaturalearthdata")
+world <- ne_countries(scale = "medium", returnclass = "sf")
+class(world)
+# correggo UK e USA in united kingdom e united states
+country_stats_copy = country_stats %>% mutate(country=replace(country,country=="UK","United Kingdom")) %>% mutate(country=replace(country,country=="USA","United States of America"))
+world = world %>% rename(country=sovereignt)
+world = full_join(world,country_stats_copy, by="country")
+ggplot(data = world) +
+geom_sf(aes(fill = score)) +
+scale_color_gradient2() +
+coord_sf(xlim = c(-170, 170), ylim = c(-60, 80), expand = FALSE)
+ggplot(data = world) +
+geom_sf(aes(fill = score)) +
+scale_color_gradient2() +
+coord_sf(xlim = c(-20, 50), ylim = c(30, 70), expand = FALSE)
+# rimozione dei dati
+rm(world)
+# Calcolo KM totali percorsi in F1
+# Mi baso sul n° di km da percorrere per ciascun gran premio (in base ai vari regolamenti dei vari anni) (dati trovati su internet)
+# il n° è una stima dei km percorsi da ogni pilota (che ha completato la gara) in ogni grand prix di quella stagione, qualora il regolamento prevedesse dei range (vedi 300-500) si è usato il valore medio (400)
+grand_prix_km_v1 <- as_tibble(read_csv("data\\grand_prix_km.txt"))
+grand_prix_km_v1$year = as.numeric(grand_prix_km_v1$year)
+races_km = races %>% select(year,raceId)
+races_km = inner_join(races_km,grand_prix_km_v1,by="year")
+# Ora per ciascuna gara conto il numero di piloti che l'hanno percorsa
+counts = results %>% select(driverId,raceId) %>% count(raceId) %>% rename(partecipants=n)
+# Calcolo per ciascuna gara il n° totale di km percorsi dai partecipanti (rimuovendo il 5% di scarto: ritiri, incidenti, etc.)
+races_km = inner_join(races_km,counts,by="raceId") %>% mutate(tot_km=partecipants*estimated_tot_km_per_driver*0.95)
+tot_f1_km_percorsi = sum(races_km$tot_km)
+circonferenza_terra=40075
+circonferenza_sole=4379000
+distanza_marte_terra=187640000
+terre_percorse=tot_f1_km_percorsi/circonferenza_terra
+soli_percorsi=tot_f1_km_percorsi/circonferenza_sole
+distanze_m_t=tot_f1_km_percorsi/distanza_marte_terra
+tot_f1_km_percorsi
+terre_percorse
+soli_percorsi
+distanze_m_t
+rm(grand_prix_km_v1,counts,races_km)
+# Calcolo stagioni vinte da piloti e da costruttori
+# ottengo l'anno delle gare
+years = races %>% select(year,raceId)
+# piloti
+seasons_win = inner_join(driverStand,years,by="raceId") %>% select(driverId,year,position,raceId) %>% filter(position==1) %>% group_by(year) %>% top_n(1,raceId) %>% select(driverId,year)
+seasons_win_count = seasons_win  %>% group_by(driverId) %>% count(driverId)
+driver_stats = full_join(driver_stats,seasons_win_count,by="driverId") %>% rename(championship=n)
+driver_stats[is.na(driver_stats)] <- 0 # NA to zeros
+rm(seasons_win,seasons_win_count)
+# costruttori
+seasons_win = inner_join(constrStand,years,by="raceId") %>% select(constructorId,year,position,raceId) %>% filter(position==1) %>% group_by(year) %>% top_n(1,raceId) %>% select(constructorId,year)
+seasons_win_count = seasons_win  %>% group_by(constructorId) %>% count(constructorId)
+constr_stats = full_join(constr_stats,seasons_win_count,by="constructorId") %>% rename(championship=n)
+constr_stats[is.na(constr_stats)] <- 0 # NA to zeros
+rm(seasons_win,seasons_win_count)
+# Plot top piloti per n° di campionati vinti
+data = driver_stats  %>% arrange(desc(championship)) %>% filter(championship>0)
+data
+ggplot(data=data,aes(x= reorder(full_name,championship),y=championship)) +
+geom_bar(aes(fill=championship),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +
+labs(x="",y="",title="Classifica piloti per n° di titoli mondiali") +
+coord_flip()
+# Plot top costruttori per n° di campionati vinti
+data = constr_stats  %>% arrange(desc(championship)) %>% filter(championship>0)
+data
+ggplot(data=data,aes(x= reorder(name,championship),y=championship)) +
+geom_bar(aes(fill=championship),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +
+labs(x="",y="",title="Classifica costruttori per n° di titoli mondiali") +
+coord_flip()
+# car reliabilty factor (n° of retire, frequency etc.)
+retire_results = results %>% filter(is.na(position)) %>% select(raceId,driverId)
+results_per_year = full_join(results,races_year,by="raceId") %>% count(year) %>% rename(tot_results=n)
+retire_results_per_year = full_join(retire_results,races_year,by="raceId") %>% count(year) %>% rename(tot_retire=n)
+retire_per_year_stats= full_join(results_per_year,retire_results_per_year,by="year") %>% mutate(retire_ratio=tot_retire/tot_results)
+# driver retirements
+retire_per_driver = retire_results %>% count(driverId )%>% rename(tot_retire=n)
+driver_stats = full_join(driver_stats,retire_per_driver,by="driverId")
+driver_stats$tot_retire[is.na(driver_stats$tot_retire)] <- 0 # sostituisco NA con 0
+driver_stats = driver_stats %>% mutate(completed_races=races-tot_retire)
+driver_stats = driver_stats %>% mutate(car_reliability_bonus_percentage = tot_retire/races)
+ggplot(data=retire_per_year_stats[],aes(x= reorder(year,year),y=1-retire_ratio)) +
+geom_bar(position = "dodge", aes(fill=retire_ratio),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=90, vjust=1, hjust=1,size=9)) +
+labs(x="",y="",title="% di completamento gara")
+# driver performance score
+wins_w = 0.25
+podiums_w = 0.25
+points_w = 0.25
+pole_w = 0.25
+driver_stats = driver_stats %>% mutate(performance=(wins_w*win_rate+
+podiums_w*podium_rate+
+points_w*points_ratio+
+pole_w*pole_ratio))
+# with car reliability bonus
+driver_stats = driver_stats %>% mutate(performance_with_bonus = performance*(1+car_reliability_bonus_percentage))
+# Plot top piloti per performance
+data = driver_stats  %>% arrange(desc(performance)) %>% filter(races>20)
+data
+ggplot(data=data[0:20,],aes(x= reorder(full_name,performance),y=performance)) +
+geom_bar(aes(fill=performance),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +
+labs(x="",y="",title="performance") +
+coord_flip()
+# Plot top piloti per performance con BONUS
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20)
+data
+ggplot(data=data[0:20,],aes(x= reorder(full_name,performance_with_bonus),y=performance_with_bonus)) +
+geom_bar(aes(fill=performance_with_bonus),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +
+labs(x="",y="",title="performance_with_bonus") +
+coord_flip()
+######################## RELAZIONE ########################
+# wins plot
+driver_stats = driver_stats %>% arrange(desc(wins))
+x = ggplot(data=driver_stats[1:20,],aes(x= reorder(full_name,-wins),y=wins)) +
+geom_bar(aes(fill=wins),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0, 0, 0.2, "cm")) +
+scale_y_continuous(breaks = pretty(driver_stats$wins, n = 10)) +
+labs(x="",y="",title="Races won: top 20 drivers")
+data = driver_stats  %>% arrange(desc(championship)) %>% filter(championship>0)
+# title plot
+y = ggplot(data=data,aes(x= reorder(full_name,-championship),y=championship)) +
+geom_bar(aes(fill=championship),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0.25, 0, 0, "cm")) +
+scale_y_continuous(breaks = pretty(driver_stats$championship, n = 5)) +
+labs(x="",y="",title="World titles: drivers standings")
+grid.arrange(x,y, ncol=2,widths=c(0.75,1))
+# points per win over year plot
+ggplot(data=season_rank_system_data[],aes(x= reorder(year,year),y=points_per_win)) +
+geom_bar(position = "dodge", aes(fill=points_per_win),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=90, vjust=0.25, hjust=1,size=8), plot.margin = margin(0.2, 0.75, 0, 0, "cm")) +
+labs(x="",y="",title="Points for a win over time")
+# plot punti pre vs punti normalized
+driver_stats = driver_stats %>% arrange(desc(tot_points))
+x = ggplot(data=driver_stats[1:20,],aes(x= reorder(full_name,-tot_points),y=tot_points)) +
+geom_bar(aes(fill=tot_points),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0, 0, 0, "cm")) +
+scale_y_continuous(breaks = pretty(driver_stats$tot_points, n = 10)) +
+labs(x="",y="",title="Total points: top 20 drivers")
+driver_stats = driver_stats %>% arrange(desc(tot_points_new))
+y =ggplot(data=driver_stats[1:20,],aes(x= reorder(full_name,-tot_points_new),y=tot_points_new)) +
+geom_bar(aes(fill=tot_points_new),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0.25, 0, 0, "cm")) +
+scale_y_continuous(breaks = pretty(driver_stats$tot_points_new, n = 10)) +
+labs(x="",y="",title="Total points (with normalized data): top 20 drivers")
+grid.arrange(x,y, ncol=2,widths=c(1,1))
+# plot podiums and poles
+driver_stats = driver_stats %>% arrange(desc(podiums))
+x = ggplot(data=driver_stats[1:20,],aes(x= reorder(full_name,-podiums),y=podiums)) +
+geom_bar(aes(fill=podiums),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0, 0, 0, "cm")) +
+scale_y_continuous(breaks = pretty(driver_stats$podiums, n = 10)) +
+labs(x="",y="",title="Total podiums: top 20 drivers")
+driver_stats = driver_stats %>% arrange(desc(pole_positions))
+y =ggplot(data=driver_stats[1:20,],aes(x= reorder(full_name,-pole_positions),y=pole_positions)) +
+geom_bar(aes(fill=pole_positions),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0.25, 0, 0, "cm")) +
+scale_y_continuous(breaks = pretty(driver_stats$pole_positions, n = 10)) +
+labs(x="",y="",title="Total pole positions: top 20 drivers")
+grid.arrange(x,y, ncol=2,widths=c(1,1))
+# plot of ratios/rates
+data = driver_stats %>% filter(races > 20)
+data = data %>% arrange(desc(win_rate))
+x = ggplot(data=data[0:15,],aes(x= reorder(full_name,-win_rate),y=win_rate)) +
+geom_bar(aes(fill=win_rate),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0, 0, 0, "cm")) +
+scale_y_continuous(breaks = pretty(driver_stats$win_rate, n = 5)) +
+labs(x="",y="",title="Win rate")
+driver_stats = driver_stats %>% arrange(desc(podium_rate))
+y =ggplot(data=data[0:15,],aes(x= reorder(full_name,-podium_rate),y=podium_rate)) +
+geom_bar(aes(fill=podium_rate),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0.25, 0, 0, "cm")) +
+scale_y_continuous(breaks = pretty(driver_stats$podium_rate, n = 5)) +
+labs(x="",y="",title="Podium rate")
+driver_stats = driver_stats %>% arrange(desc(points_ratio))
+z =ggplot(data=data[0:15,],aes(x= reorder(full_name,-points_ratio),y=points_ratio)) +
+geom_bar(aes(fill=points_ratio),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0.25, 0, 0, "cm")) +
+scale_y_continuous(breaks = pretty(driver_stats$points_ratio, n = 5)) +
+labs(x="",y="",title="Points rate")
+driver_stats = driver_stats %>% arrange(desc(pole_ratio))
+w=ggplot(data=data[0:15,],aes(x= reorder(full_name,-pole_ratio),y=pole_ratio)) +
+geom_bar(aes(fill=pole_ratio),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0.25, 0, 0, "cm")) +
+scale_y_continuous(breaks = pretty(driver_stats$pole_ratio, n = 5)) +
+labs(x="",y="",title="Pole positions rate")
+grid.arrange(x,y,z,w, ncol=2,nrow=2,widths=c(1,1))
+# top 20 driver of all time
+data = driver_stats  %>% arrange(desc(performance)) %>% filter(races>20)
+ggplot(data=data[0:20,],aes(x= reorder(full_name,performance),y=performance)) +
+geom_bar(aes(fill=performance),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +
+labs(x="",y="",title="Most dominant F1 drivers of all time") +
+coord_flip()
+ggplot(data=retire_per_year_stats[],aes(x= reorder(year,year),y=1-retire_ratio)) +
+geom_bar(position = "dodge", aes(fill=retire_ratio),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=90, vjust=0.25, hjust=1,size=8), plot.margin = margin(0.2, 0.75, 0, 0, "cm")) +
+scale_y_continuous(breaks = seq(0,1,0.1))+
+labs(x="",y="",title="Probability to finish a race without having a mechanical failure over time")
+# top 20 driver of all time with car reliability BONUS
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20)
+ggplot(data=data[0:20,],aes(x= reorder(full_name,performance_with_bonus),y=performance_with_bonus)) +
+geom_bar(aes(fill=performance_with_bonus),stat = 'identity', show.legend = FALSE) +
+theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +
+labs(x="",y="",title="Most dominant F1 drivers of all time with mechanical failures bonus") +
+coord_flip()
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>10) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data = driver_stats %>% select(full_name,country,races,completed_races,tot_retire,wins,win_rate,second,third,podiums,podium_rate,tot_points,tot_points_new,points_ratio,pole_positions,pole_ratio,second_in_grid,performance,performance_with_bonus)
+data = data %>% mutate(pole_ratio = round(pole_ratio,4)) %>% mutate(podium_rate = round(podium_rate,4)) %>% mutate(performance = round(performance,4)) %>% mutate(performance_with_bonus = round(performance_with_bonus,4))%>% mutate(win_rate = round(win_rate,4))%>% mutate(points_ratio = round(points_ratio,4))
+colnames(data)=c("Driver","Nationality","Races started","Races completed","Retirements","Wins","Win rate","2nd","3rd","Podiums","Podium rate","Points scored","Points scored (normalized)","Points rate","Pole positions","Pole rate","2nd in grid","Performance","Performance with mec. fail bonus")
+reactable(data,searchable = TRUE,bordered = TRUE)
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>10) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data = driver_stats %>% select(full_name,country,races,completed_races,tot_retire,wins,win_rate,second,third,podiums,podium_rate,tot_points,tot_points_new,points_ratio,pole_positions,pole_ratio,second_in_grid,performance,performance_with_bonus)
+data = data %>% mutate(pole_ratio = round(pole_ratio,4)) %>% mutate(podium_rate = round(podium_rate,4)) %>% mutate(performance = round(performance,4)) %>% mutate(performance_with_bonus = round(performance_with_bonus,4))%>% mutate(win_rate = round(win_rate,4))%>% mutate(points_ratio = round(points_ratio,4))
+colnames(data)=c("Driver","Nationality","Races started","Races completed","Retirements","Wins","Win rate","2nd","3rd","Podiums","Podium rate","Points scored","Points scored (normalized)","Points rate","Pole positions","Pole rate","2nd in grid","Performance","Performance with mec. fail bonus")
+reactable(data,searchable = TRUE,bordered = TRUE)
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>10) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data = data %>% select(full_name,country,races,completed_races,tot_retire,wins,win_rate,second,third,podiums,podium_rate,tot_points,tot_points_new,points_ratio,pole_positions,pole_ratio,second_in_grid,performance,performance_with_bonus)
+data = data %>% mutate(pole_ratio = round(pole_ratio,4)) %>% mutate(podium_rate = round(podium_rate,4)) %>% mutate(performance = round(performance,4)) %>% mutate(performance_with_bonus = round(performance_with_bonus,4))%>% mutate(win_rate = round(win_rate,4))%>% mutate(points_ratio = round(points_ratio,4))
+colnames(data)=c("Driver","Nationality","Races started","Races completed","Retirements","Wins","Win rate","2nd","3rd","Podiums","Podium rate","Points scored","Points scored (normalized)","Points rate","Pole positions","Pole rate","2nd in grid","Performance","Performance with mec. fail bonus")
+reactable(data,searchable = TRUE,bordered = TRUE)
+data = data[-2]
+data
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data = data[-2]
+data = data %>% select(full_name,country,races,completed_races,tot_retire,wins,win_rate,second,third,podiums,podium_rate,tot_points,tot_points_new,points_ratio,pole_positions,pole_ratio,second_in_grid,performance,performance_with_bonus)
+data = data[-2,]
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data = data[-2,]
+data = data %>% select(full_name,country,races,completed_races,tot_retire,wins,win_rate,second,third,podiums,podium_rate,tot_points,tot_points_new,points_ratio,pole_positions,pole_ratio,second_in_grid,performance,performance_with_bonus)
+data = data %>% mutate(pole_ratio = round(pole_ratio,4)) %>% mutate(podium_rate = round(podium_rate,4)) %>% mutate(performance = round(performance,4)) %>% mutate(performance_with_bonus = round(performance_with_bonus,4))%>% mutate(win_rate = round(win_rate,4))%>% mutate(points_ratio = round(points_ratio,4))
+colnames(data)=c("Driver","Nationality","Races started","Races completed","Retirements","Wins","Win rate","2nd","3rd","Podiums","Podium rate","Points scored","Points scored (normalized)","Points rate","Pole positions","Pole rate","2nd in grid","Performance","Performance with mec. fail bonus")
+reactable(data,searchable = TRUE,bordered = TRUE)
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data = data %>% select(full_name,country,races,completed_races,tot_retire,wins,win_rate,second,third,podiums,podium_rate,tot_points,tot_points_new,points_ratio,pole_positions,pole_ratio,second_in_grid,performance,performance_with_bonus)
+data = data %>% mutate(pole_ratio = round(pole_ratio,4)) %>% mutate(podium_rate = round(podium_rate,4)) %>% mutate(performance = round(performance,4)) %>% mutate(performance_with_bonus = round(performance_with_bonus,4))%>% mutate(win_rate = round(win_rate,4))%>% mutate(points_ratio = round(points_ratio,4))
+colnames(data)=c("Driver","Nationality","Races started","Races completed","Retirements","Wins","Win rate","2nd","3rd","Podiums","Podium rate","Points scored","Points scored (normalized)","Points rate","Pole positions","Pole rate","2nd in grid","Performance","Performance with mec. fail bonus")
+reactable(data,searchable = TRUE,bordered = TRUE)
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data = data %>% select(full_name,country,races,completed_races,tot_retire,wins,win_rate,second,third,podiums,podium_rate,tot_points,tot_points_new,points_ratio,pole_positions,pole_ratio,second_in_grid,performance,performance_with_bonus)
+data = data %>% mutate(pole_ratio = round(pole_ratio,4)) %>% mutate(podium_rate = round(podium_rate,4)) %>% mutate(performance = round(performance,4)) %>% mutate(performance_with_bonus = round(performance_with_bonus,4))%>% mutate(win_rate = round(win_rate,4))%>% mutate(points_ratio = round(points_ratio,4))
+colnames(data)=c("Driver","Nationality","Races started","Races completed","Retirements","Wins","Win rate","2nd","3rd","Podiums","Podium rate","Points scored","Points scored (normalized)","Points rate","Pole positions","Pole rate","2nd in grid","Performance","Performance with mec. fail bonus")
+reactable(data,searchable = TRUE,bordered = TRUE)
+# Test spidercharts con le stats delle nazioni
+max_drivers                = max(country_stats$drivers)
+max_constr                 = max(country_stats$constructors)
+max_held_races             = max(country_stats$held_races)
+max_circuits_used          = max(country_stats$circuits_used)
+max_held_races_by_drivers  = max(country_stats$held_races_by_drivers)
+max_held_seasons_by_constr = max(country_stats$held_seasons_by_constr)
+maxs = list(max_drivers,max_constr,max_held_races,max_circuits_used,max_held_races_by_drivers,max_held_seasons_by_constr)
+mins = list(0,0,0,0,0,0)
+n_country = 6 # numero di nazioni per cui plottare i grafici
+country_stats = country_stats %>% arrange(desc(score)) # ordino in base al criterio che considero migliore (per il ranking 1°,2°,3° etc)
+layout.matrix = matrix(c(1,2,3,4), nrow=1,ncol=4)
+layout(mat = layout.matrix, heights = c(1), widths = c(2,2,2,2))
+c <- par(mar=c(0.5,0,2,0),oma=c(0,0,0,0))
+for(i in 1:4){
+test_data = country_stats[i,] %>% select(drivers,constructors,held_races,circuits_used,held_races_by_drivers,held_seasons_by_constr)
+name = country_stats$country[i]
+data = rbind(maxs,mins,test_data)
+colnames(data) <- c(paste("Drivers \n","[",test_data[1,][1],"]",sep=""),
+paste("Constructors \n","[",test_data[1,][2],"]",sep=""),
+paste("\n\n Race weekends \n","[",test_data[1,][3],"]",sep=""),
+paste("Circuits\n","[",test_data[1,][4],"]",sep=""),
+paste("\n\n Held races \n by drivers\n","[",test_data[1,][5],"]",sep=""),
+paste(" Held seasons \n  by constructors \n","[",test_data[1,][6],"]\n",sep=""))
+radarchart(data, axistype=0,
+#polygon
+pcol=rgb(0/255,0/255,0/255,0.9) , pfcol=rgb(225/255,225/255,77/255,0.4) , plwd=3,
+#grid
+cglcol="grey", cglty=3, axislabcol="grey", cglwd=1,
+#labels
+vlcex=0.9,
+title=paste(name," (",toString(i),"°)",sep="")
+)
+}
+# reset dei par e pulizia ambiente
+par(c)
+rm(c,layout.matrix,maxs,mins,test_data)
+# Test spidercharts con le stats delle nazioni
+max_drivers                = max(country_stats$drivers)
+max_constr                 = max(country_stats$constructors)
+max_held_races             = max(country_stats$held_races)
+max_circuits_used          = max(country_stats$circuits_used)
+max_held_races_by_drivers  = max(country_stats$held_races_by_drivers)
+max_held_seasons_by_constr = max(country_stats$held_seasons_by_constr)
+maxs = list(max_drivers,max_constr,max_held_races,max_circuits_used,max_held_races_by_drivers,max_held_seasons_by_constr)
+mins = list(0,0,0,0,0,0)
+n_country = 6 # numero di nazioni per cui plottare i grafici
+country_stats = country_stats %>% arrange(desc(score)) # ordino in base al criterio che considero migliore (per il ranking 1°,2°,3° etc)
+layout.matrix = matrix(c(1,2,3,4), nrow=1,ncol=4)
+layout(mat = layout.matrix, heights = c(1), widths = c(2,2,2,2))
+c <- par(mar=c(0.5,0,2,0),oma=c(0,0,0,0))
+for(i in 1:4){
+test_data = country_stats[i,] %>% select(drivers,constructors,held_races,circuits_used,held_races_by_drivers,held_seasons_by_constr)
+name = country_stats$country[i]
+data = rbind(maxs,mins,test_data)
+colnames(data) <- c(paste("Drivers \n","[",test_data[1,][1],"]",sep=""),
+paste("Constructors \n","[",test_data[1,][2],"]",sep=""),
+paste("\n\n Race weekends \n","[",test_data[1,][3],"]",sep=""),
+paste("Circuits\n","[",test_data[1,][4],"]",sep=""),
+paste("\n\n Held races \n by drivers\n","[",test_data[1,][5],"]",sep=""),
+paste(" Held seasons \n  by constructors \n","[",test_data[1,][6],"]\n",sep=""))
+radarchart(data, axistype=0,
+#polygon
+pcol=rgb(0/255,0/255,0/255,0.9) , pfcol=rgb(225/255,225/255,77/255,0.4) , plwd=3,
+#grid
+cglcol="grey", cglty=3, axislabcol="grey", cglwd=1,
+#labels
+vlcex=0.9,
+title=paste(name," (",toString(i),"°)",sep="")
+)
+}
+# reset dei par e pulizia ambiente
+par(c)
+rm(c,layout.matrix,maxs,mins,test_data)
+country_stats
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_per_constr)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr)
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr)
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 4)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 50)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 1)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 5000)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 500)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 400)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 400,width = 500)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 400,width = 1000)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 400,width = 1000)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 400,width = 1000)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 400,width = 1000)
+data = country_stats  %>% arrange(desc(score))
+data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
+colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 400,width = 1000)
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data = data %>% select(full_name,country,races,completed_races,tot_retire,wins,win_rate,second,third,podiums,podium_rate,tot_points,tot_points_new,points_ratio,pole_positions,pole_ratio,second_in_grid,performance,performance_with_bonus)
+data = data %>% mutate(pole_ratio = round(pole_ratio,4)) %>% mutate(podium_rate = round(podium_rate,4)) %>% mutate(performance = round(performance,4)) %>% mutate(performance_with_bonus = round(performance_with_bonus,4))%>% mutate(win_rate = round(win_rate,4))%>% mutate(points_ratio = round(points_ratio,4))
+colnames(data)=c("Driver","Nationality","Races started","Races completed","Retirements","Wins","Win rate","2nd","3rd","Podiums","Podium rate","Points scored","Points scored (normalized)","Points rate","Pole positions","Pole rate","2nd in grid","Performance","Performance with mec. fail bonus")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 400)
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data = data %>% select(full_name,country,races,completed_races,tot_retire,wins,win_rate,second,third,podiums,podium_rate,tot_points,tot_points_new,points_ratio,pole_positions,pole_ratio,second_in_grid,performance,performance_with_bonus)
+data = data %>% mutate(pole_ratio = round(pole_ratio,4)) %>% mutate(podium_rate = round(podium_rate,4)) %>% mutate(performance = round(performance,4)) %>% mutate(performance_with_bonus = round(performance_with_bonus,4))%>% mutate(win_rate = round(win_rate,4))%>% mutate(points_ratio = round(points_ratio,4))
+colnames(data)=c("Driver","Nationality","Races started","Races completed","Retirements","Wins","Win rate","2nd","3rd","Podiums","Podium rate","Points scored","Points scored (normalized data)","Points rate","Pole positions","Pole rate","2nd in grid","Performance","Performance with mec. fail bonus")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 500)
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data = data %>% select(full_name,country,races,completed_races,tot_retire,wins,win_rate,second,third,podiums,podium_rate,tot_points,tot_points_new,points_ratio,pole_positions,pole_ratio,second_in_grid,performance,performance_with_bonus)
+data = data %>% mutate(pole_ratio = round(pole_ratio,4)) %>% mutate(podium_rate = round(podium_rate,4)) %>% mutate(performance = round(performance,5)) %>% mutate(performance_with_bonus = round(performance_with_bonus,4))%>% mutate(win_rate = round(win_rate,4))%>% mutate(points_ratio = round(points_ratio,5))
+colnames(data)=c("Driver","Nationality","Races started","Races completed","Retirements","Wins","Win rate","2nd","3rd","Podiums","Podium rate","Points scored","Points scored (normalized data)","Points rate","Pole positions","Pole rate","2nd in grid","Performance","Performance with mec. fail bonus")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 500)
+data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20) %>% select(-driverId,-car_reliability_bonus_percentage,-tot_points_potential)
+data = data %>% select(full_name,country,races,completed_races,tot_retire,wins,win_rate,second,third,podiums,podium_rate,tot_points,tot_points_new,points_ratio,pole_positions,pole_ratio,second_in_grid,performance,performance_with_bonus)
+data = data %>% mutate(pole_ratio = round(pole_ratio,4)) %>% mutate(podium_rate = round(podium_rate,4)) %>% mutate(performance = round(performance,4)) %>% mutate(performance_with_bonus = round(performance_with_bonus,4))%>% mutate(win_rate = round(win_rate,4))%>% mutate(points_ratio = round(points_ratio,4))
+colnames(data)=c("Driver","Nationality","Races started","Races completed","Retirements","Wins","Win rate","2nd","3rd","Podiums","Podium rate","Points scored","Points scored (normalized data)","Points rate","Pole positions","Pole rate","2nd in grid","Performance","Performance with mec. fail bonus")
+reactable(data,searchable = TRUE,bordered = TRUE,height = 500)
+constr_stats
+library(gapminder)
+install.packages("gapminder")
+constr_stats
+View(constr_stats)
+library(gganimate)
+install.packages("gganimate")
