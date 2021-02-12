@@ -1,0 +1,5 @@
+"0","drivers_constr_arcs = inner_join(id_name_drivers,drivers_constr_arcs,by=driverId)
+"
+"2","Error in standardise_join_by(by, x_names = x_names, y_names = y_names) : 
+  oggetto ""driverId"" non trovato
+"

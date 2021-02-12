@@ -24,10 +24,10 @@ render_anim = TRUE
 ```{r, include = !knit_relazione, warning=FALSE,message=FALSE}
 # Loading libraries
 
-library(ggplot2)
-library(readr)
-library(tibble)
-library(dplyr)
+library(ggplot2) # for graphs
+library(readr) # for csvs
+library(tibble) # for better csvs
+library(dplyr) # for queries
 library(fmsb) # spidercharts
 library(viridis) # for colors
 library(wordcloud) # worldcloud plots
@@ -36,7 +36,8 @@ library(gridExtra) # for nice layouts
 library("rnaturalearth") # world data for ggplot map
 library("rnaturalearthdata") # world data for ggplot map
 library(reactable) # nice tables
-library(gganimate)
+library(gganimate) # for gif renders (ggplot2)
+library(visNetwork) # cool interactive networks :)
 ```
 
 ```{r, include = !knit_relazione,message=FALSE,warning=FALSE}
@@ -756,7 +757,7 @@ counts = results %>% select(driverId,raceId) %>% count(raceId) %>% rename(partec
 
 # Calcolo per ciascuna gara il n° totale di km percorsi dai partecipanti (rimuovendo il 5% di scarto: ritiri, incidenti, etc.)
 
-races_km = inner_join(races_km,counts,by="raceId") %>% mutate(tot_km=partecipants*estimated_tot_km_per_driver*0.95)
+races_km = inner_join(races_km,counts,by="raceId") %>% mutate(tot_km=partecipants*estimated_tot_km_per_driver*0.9)
 
 tot_f1_km_percorsi = sum(races_km$tot_km)
 
@@ -1632,6 +1633,58 @@ colnames(data)=c("Constructor","Performance","Nationality","Held seasons","World
 reactable(data,searchable = TRUE,bordered = TRUE,height = 400)
 ```
 
+# Formula 1 data seen as a network
+We can visualize Formula One's data as a network. In the following interactive graph we represent the connections between pilots and constructors. Each yellow node is a constructor, each red node is a driver and each edge has the following meaning: *x was a driver for constructor y*. You can interact with the graph by dragging the nodes, clicking them to view only its information and zooming it with the mouse scroll. You need to zoom in order to read names.
+
+The network include only the best 50 constructors and the best 70 drivers. The dimension of the nodes are dependent on the performance metric.
+
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=9, fig.height=7,fig.align='center'}
+
+top_c = 50
+top_d = 70
+
+allowed_constr = constr_stats %>% arrange(desc(performance)) %>% filter(held_races >= 50) %>% top_n(top_c,performance)
+allowed_drivers = driver_stats %>% arrange(desc(performance_with_bonus)) %>% filter(races >= 20)%>% top_n(top_d,performance_with_bonus) 
+
+constr_nodes = allowed_constr %>% select(name,performance) %>% rename(id=name) %>% mutate(group="constructor") %>% mutate(color=list(list(background="gold",border="black"))) %>% rename(size=performance)%>% mutate(shape="diamond")
+
+drivers_nodes = allowed_drivers %>% select(full_name,performance_with_bonus) %>% rename(id=full_name) %>% mutate(group="driver") %>% mutate(color=list(list(background="tomato",border="black")))%>% rename(size=performance_with_bonus) %>% mutate(shape="dot")
+
+
+id_name_drivers = allowed_drivers %>% select(full_name,driverId)
+id_name_constr = allowed_constr %>% select(name,constructorId)
+
+drivers_constr_arcs = unique(results %>% select(driverId,constructorId))
+
+drivers_constr_arcs = inner_join(id_name_constr,drivers_constr_arcs,by="constructorId")
+drivers_constr_arcs = inner_join(id_name_drivers,drivers_constr_arcs,by="driverId")
+
+drivers_constr_arcs = drivers_constr_arcs %>% select(-driverId,-constructorId) %>% rename(from=full_name,to=name)
+
+nodes = as.data.frame(unique(rbind(constr_nodes,drivers_nodes)))
+arcs = as.data.frame(unique(drivers_constr_arcs))
+
+# filtering nodes with 0 arcs
+nodes = nodes %>% filter(id %in% append(arcs$from,arcs$to))
+
+vis.nodes <- nodes
+vis.arcs <- arcs
+
+# graphics paramemeters
+vis.nodes$shadow <- TRUE # Nodes will drop shadow
+vis.nodes = nodes %>% mutate(label=id)
+vis.nodes$label = vis.nodes$id
+vis.nodes$size = (vis.nodes$size +0.325)*65
+vis.nodes$borderWidth <- 2 # Node border width
+
+vis.arcs$color <- "gray"
+vis.arcs$width <- 1
+vis.arcs$shadow <- FALSE
+
+net = visNetwork(vis.nodes, vis.arcs,background="white")
+visOptions(net,highlightNearest = TRUE)
+```
+
 # Conclusions
 Through data analysis we were able to evaluate the performance of drivers and constructors on the basis of multiple metrics. Those metrics allowed us to define a more sophisticated ranking system which, based on some assumptions, allowed us to isolate some variabilty factors relating to the changes that have occurred over the decades, allowing us to perform a more fair and objective evaluation. We were also able to draw conclusions about countries, discovering which of them partecipated the most and which of these is the homeland of the best drivers. 
 
@@ -1643,19 +1696,24 @@ Undoubtedly, the rating systems can be improved, especially the one regards the 
 Another factor that is often a source of discussion among fans is the *car's performance factor*. Sometimes a good driver finds himself, unfortunately in non-competitive teams, thus not being able to demonstrate his skills. It must be said, however, that typically the best drivers are hired by the most winning teams, and vice versa. It would be interesting, but at the same time very complex, to try to isolate this factor.
 
 # Some curiosities about F1
+In the following chapter some brief curiosities about Formula One are reported.
 
 ## Estimation of the total km traveled in the races
+The dataset gives us information on the number of races held for each season. For each of these races we know also how many drivers partecipated. By searching on the internet how many kilometers a grand prix must consist of, we can estimate the total number of kilometers traveled by the cars that participated in all Formula 1 races. This is an estimate because some drivers have only completed a portion of the race (*in fact we will apply a hypothetical factor of -10%*) due to mechanical failures or accidents. 
+Another approximation was made for those years in which the number of kilometers for a grand prix was variable, in those cases the average was considered.
+
+Let's compare the result with some known long distances.
 
 ```{r, out.width = "1440px",echo = !knit_relazione,fig.align='center'}
 knitr::include_graphics("imgs\\distances_img.jpg")
 ```
 
+This is a large number, despite the fact that we are only considering the races, excluding qualifying, free practice and seasonal tests.
+
 ## Formula One and Blockchain
+[F1 Delta Time](https://www.f1deltatime.com/) is the official *F1* blockchain game. *F1 Delta Time* creates a new paradigm for digital ownership and gaming. Through blockchain, official Formula 1 non-fungible collectible tokens allow players to participate in a play-to-earn gaming ecosystem, where skills are rewarded with real value rewards. All of the core gameplay assets in F1 Delta Time can be wholly owned, traded and sold by players and also used to play the game itself, empowering players like never before.
 
-
-
-
-
+*You can learn more about F1 Delta Time [here](https://f1deltatime.medium.com/f1-delta-time-grand-prix-mode-phase-1-release-bca56fbc140d).*
 
 
 
