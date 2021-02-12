@@ -1,4 +1,0 @@
-"0",""
-"0","# pole ratio plot"
-"0","data = driver_stats %>% arrange(desc(pole_ratio)) %>% filter(races>25)"
-"0","data "

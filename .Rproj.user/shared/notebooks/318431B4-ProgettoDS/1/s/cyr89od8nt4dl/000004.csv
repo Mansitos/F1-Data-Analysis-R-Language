@@ -1,4 +1,0 @@
-"0","# World cloud test con nazioni"
-"0",""
-"0","wordcloud(country_stats$country,country_stats$score+4,scale=c(10,0.3),max.words = length(country_stats$country),random.order=FALSE,rot.per=0.25,ordered.colors = FALSE,random.color = TRUE)"
-"0",""

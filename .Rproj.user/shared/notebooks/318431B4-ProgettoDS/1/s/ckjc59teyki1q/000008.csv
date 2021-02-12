@@ -1,5 +1,0 @@
-"2","r error 4 (R code execution error)"
-"0","# Plot top 25 nazioni per score"
-"0",""
-"0","country_stats = country_stats %>% arrange(desc(score))"
-"0","country_stats"
