@@ -1,0 +1,4 @@
+"0",""
+"0","# Plot top piloti per performance con BONUS"
+"0","data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20)"
+"0","data"

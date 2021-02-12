@@ -1,0 +1,6 @@
+"0","  "
+"0",""
+"0","ggplot(data = world) +"
+"0","    geom_sf(aes(fill = score)) +"
+"0","    scale_color_gradient2() +"
+"0","    coord_sf(xlim = c(-20, 50), ylim = c(30, 70), expand = FALSE)"

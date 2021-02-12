@@ -14,6 +14,9 @@ knitr::opts_chunk$set(echo = TRUE)
 # Se false -> knitting completo, non esclude codice etc., viene incluso quasi tutto
 knit_relazione = TRUE
 
+# if false -> gif animations render skipped
+render_anim = TRUE
+
 # per includere una porzione nella relazione: include = !knit_relazione
 ```
 
@@ -1157,11 +1160,22 @@ As we can see, on the top of the ranking we have most of the most iconic F1 driv
 
 Another factor which can be considered as penalizing for past drivers is that car reliability improved over time, hence modern drivers have an advantage in their performances metrics. Consider this example: driver *a* and driver *b* started both 100 races. Driver *a* is from the 50s and had 40 mechanical failures: his real win potential is 60. Driver *b* is a recent *F1* driver, and had only 5 mechanical failures: his real win potential is 95. A fairer approach would take this issue into account. In order to isolate the reliability factor we can recalcuate rates by using *completed races* and not the amount of *held races*. The graph below shows how old cars had a higher probability of having a mechanical failure.
 
-```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=4,fig.align='center'}
+```{r,include = FALSE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=4,fig.align='center'}
 ggplot(data=retire_per_year_stats[],aes(x= reorder(year,year),y=1-retire_ratio)) +
   geom_bar(position = "dodge", aes(fill=retire_ratio),color="black",size=0.35,stat = 'identity', show.legend = FALSE) +
   theme(axis.text.x = element_text(angle=90, vjust=0.25, hjust=1,size=8), plot.margin = margin(0.2, 0.5, 0, -0.1, "cm"))+
   scale_y_continuous(breaks = seq(0,1,0.1))+
+  labs(x="",y="",title="Probability to finish a race without having a mechanical failure over time")
+```
+
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=4,fig.align='center'}
+
+# alternative plot, instead of barplot
+ggplot(data=retire_per_year_stats[],aes(x= year,y=1-retire_ratio)) +
+  geom_line(position = "dodge", aes(fill=retire_ratio),color="black",size=0.55,stat = 'identity', show.legend = FALSE) + geom_point(shape=21, color="blue", fill="#3e80b4", size=2.35) +
+  theme(axis.text.x = element_text(angle=90, vjust=0.25, hjust=1,size=8), plot.margin = margin(0.2, 0.5, 0, -0.1, "cm"))+
+  scale_y_continuous(breaks = seq(0,1,0.1))+
+  scale_x_continuous(breaks = seq(1950,2020,5)) +
   labs(x="",y="",title="Probability to finish a race without having a mechanical failure over time")
 ```
 
@@ -1199,13 +1213,10 @@ colnames(data)=c("Driver","Nationality","World titles","Races started","Races co
 reactable(data,searchable = TRUE,bordered = TRUE,height = 500)
 ```
 
-### Conclusions on the analysis of drivers
-Through data analysis we were able to evaluate the performance of drivers on the basis of multiple metrics. Those metrics allowed us to define a more sophisticated ranking system which, based on some assumptions, allowed us to isolate some variabilty factors relating to the changes that have occurred over the decades, allowing us to perform a more fair and objective evaluation.
-
 # What if we had to give a flag to F1?
-Formula One is an international motorsport, but which country was the most present one during these 71 years? Let's find out through the data we have available. Checking the nationality of the 850 drivers, 211 manufacturers and 74 circuits, we count a total of 49 nations involved in this motorsport. Let's visualize the 6 countries with the highest number per category:
+Formula One is an international motorsport, but which country was the most present one during these 71 years? Let's find out through the data we have available. Checking the nationality of the 850 drivers, 211 manufacturers and 74 circuits, we count a total of 49 nations involved in this motorsport. Let's visualize the tio 6 countries with the highest number of drivers, manufacturers and used circuits.
 
-```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=3,fig.align='center'}
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8.25, fig.height=3,fig.align='center'}
 # countries pie charts
 
 # drivers
@@ -1222,7 +1233,7 @@ x = ggplot(data=data,aes(x="", y=prop, fill=reorder(country,drivers)))+
   scale_fill_brewer(palette="YlOrRd")+
   theme(legend.position="none") +
   geom_text(aes(y = ypos, label = paste(country,"\n(",drivers,")",sep=""),x=1.8), color = "black", size=2.8)  +
-  ggtitle("          Drivers")
+  ggtitle("           Drivers")
 rm(data)
 
 # constructors
@@ -1240,7 +1251,7 @@ y = ggplot(data=data,aes(x="", y=prop, fill=reorder(country,constructors)))+
   scale_fill_brewer(palette="YlOrRd")+
   theme(legend.position="none") +
   geom_text(aes(y = ypos+c(0,0,0,0,-0.85,0), label = paste(country,"\n(",constructors,")",sep=""),x=1.8), color = "black", size=2.8) +
-  ggtitle("          Constructors")
+  ggtitle("           Constructors")
 
 rm(data)
 
@@ -1258,14 +1269,15 @@ z = ggplot(data=data,aes(x="", y=prop, fill=reorder(country,circuits_used)))+
   scale_fill_brewer(palette="YlOrRd")+
   theme(legend.position="none") +
   geom_text(aes(y = ypos, label = paste(country,"\n(",circuits_used,")",sep=""),x=1.8), color = "black", size=2.8) +
-  ggtitle("          Circuits")
+  ggtitle("           Circuits")
 
 rm(data)
 
 grid.arrange(x,y,z, ncol=3,widths=c(1,1,1))
 ```
 
-For each of these categories we can extract more meaningful information. We count the total number of races disputed by drivers from each nation, constructors' championships, and the number of race weekends for circuits divided by nationality. In this way we move from a simple count to a measure of the presence of each nation.
+For each of these categories we can extract more meaningful information. We count the total number of races disputed by drivers from each nation, constructors’ championships, and the number of race weekends for circuits grouped by nationality. 
+In this way we can measure the presence of each country during these 71 years.
 
 ```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=9, fig.height=2.5,fig.align='center'}
 
@@ -1300,22 +1312,25 @@ grid.arrange(x,y,z, ncol=3,widths=c(1,1,1))
 
 We can already see how United Kingdom has a very high number of drivers and constructors. If we set up a weighting system based on those three metrics we can decide which nation has been most present throughout the history of F1. We will use the following weights:
 
-- $number \; of \; race \; weekends = 0.3$;
 - $races \; held \; by \; drivers = 0.4$;
 - $seasons \; held \; by \; constructors = 0.3$;
+- $number \; of \; race \; weekends = 0.3$;
 
-So the score for each country is computed as follow:
+We give the same weight to the factors representing the participation of drivers and constructors, bu we give a small bonus to the factor representing where grand prixs were held. This is because a F1 event is held not only by drivers and constructors, but by fans, organizers, first aiders, track technicians etc. The score for each country is computed as follow:
 
 $$score = \frac{3}{10}*number \; of \; race \; weekends + \frac{4}{10}*races \; held \; by \; drivers + \frac{3}{10}*seasons \; held \; by \; constructors$$
 We summarize our results with the following *wordcloud* where the dimension of each *contry* depends on its *score*.
 
 ```{r,include = TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=8, fig.height=5}
 # World cloud test con nazioni
-
 wordcloud(country_stats$country,country_stats$score+4,scale=c(12,0.4),max.words = length(country_stats$country),random.order=FALSE,rot.per=0.35,ordered.colors = FALSE,random.color = TRUE,colors = brewer.pal(7,"YlOrRd")[c(3,4,4,5,5,6,6,7)])
 ```
 
-We will now visualize our results through a *heatmap*:
+We can cleary see how United Kingdom was the most present country in the history of F1. This result is probably justified by the great amount of drivers and constructors
+coming from there. A big contribution is also given by the historic [Silverstone Circuit](https://en.wikipedia.org/wiki/Silverstone_Circuit), which hosted 55 races. In second place we find Italy. Its score owes much to the first drivers of the 50s, to the presence of [Ferrari](https://www.ferrari.com/en-US/formula1/team) (the only constructor present in all the championships) and to the [Autodromo Nazionale di Monza](https://en.wikipedia.org/wiki/Autodromo_Nazionale_di_Monza), currently the circuit with the highest number of races hosted (70).
+
+
+To get an overall and clearer view, we display our data on a geographic *heatmap*:
 
 ```{r,include = TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=10, fig.height=4}
 world <- ne_countries(scale = "medium", returnclass = "sf")
@@ -1327,83 +1342,60 @@ world = world %>% rename(country=sovereignt)
 world = full_join(world,country_stats_copy, by="country")
 
 ggplot(data = world) +
-    geom_sf(aes(fill = score)) +
+    geom_sf(aes(fill = score),color="black",size=0.20) +
     scale_color_gradient2() +
     coord_sf(xlim = c(-170, 170), ylim = c(-60, 80), expand = FALSE)+
     scale_fill_distiller(palette="YlOrRd",direction = 1)+ 
-    guides(fill=guide_colorbar(title="Score"))
+    guides(fill=guide_colorbar(title="Score",frame.colour = "black", ticks.colour = "black"))+
+    theme(legend.title=element_text(size=13))
 ```
 Let's have a clooser look into Europe:
 
 ```{r,include = TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=10, fig.height=4}
 
 ggplot(data = world) +
-    geom_sf(aes(fill = score)) +
+    geom_sf(aes(fill = score),color="black",size=0.20) +
     scale_color_gradient2() +
     coord_sf(xlim = c(-20, 50), ylim = c(30, 60), expand = FALSE)+
     scale_fill_gradient2(low="#121212", mid="#2a4732", high="#00ff4c")+
     scale_fill_distiller(palette="YlOrRd",direction = 1)+ 
-    guides(fill=guide_colorbar(title="Score"))
+    guides(fill=guide_colorbar(title="Score",frame.colour = "black", ticks.colour = "black"))+
+    theme(legend.title=element_text(size=13))
 
-# rimozione dei dati
+# removing useless data
 rm(world)
 ```
 
-Here is a small recap of the metrics of the four most significant countries of F1.
-```{r,include = FALSE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=12, fig.height=3}
-# Test spidercharts con le stats delle nazioni
+*If you want to learn more on what happens behind the scenes of every grand prix, watch [this video](https://www.youtube.com/watch?v=MH6Loko0BOA)*
 
-max_drivers                = max(country_stats$drivers)
-max_constr                 = max(country_stats$constructors)
-max_held_races             = max(country_stats$held_races)
-max_circuits_used          = max(country_stats$circuits_used)
-max_held_races_by_drivers  = max(country_stats$held_races_by_drivers)
-max_held_seasons_by_constr = max(country_stats$held_seasons_by_constr)
+### Which country raised the fastest drivers?
+Using the data relating to the drivers and their performance, we can compute an estimate of the *average performance* of drivers from each country. We allow to enter the ranking only to countries that have had at least 15 drivers, and we compute the average by taking into consideration only the 15 best drivers for each of them.
 
+```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=7, fig.height=3,fig.align='center'}
+# Average of top 15 drivers performance per country (min 15 drivers)
+allowed_countries = country_stats %>% filter(drivers >= 15) %>% select(country) 
 
-maxs = list(max_drivers,max_constr,max_held_races,max_circuits_used,max_held_races_by_drivers,max_held_seasons_by_constr)
-mins = list(0,0,0,0,0,0)
+allowed_drivers = inner_join(allowed_countries,driver_stats) %>% select("country","performance_with_bonus") %>% group_by(country) %>% top_n(15,performance_with_bonus)
+allowed_drivers = unique(allowed_drivers)
 
-n_country = 6 # numero di nazioni per cui plottare i grafici
-country_stats = country_stats %>% arrange(desc(score)) # ordino in base al criterio che considero migliore (per il ranking 1°,2°,3° etc)
+counts = allowed_drivers %>% group_by(country) %>% count(country)
 
-layout.matrix = matrix(c(1,2,3,4), nrow=1,ncol=4)
-layout(mat = layout.matrix, heights = c(1), widths = c(2,2,2,2))
-c <- par(mar=c(0.5,0,2,0),oma=c(0,0,0,0))
+medium_performance_per_country = aggregate(allowed_drivers$performance_with_bonus,by=list(country=allowed_drivers$country),FUN=sum) %>% rename(average_perforamnce_with_bonus=x)
+medium_performance_per_country = inner_join(medium_performance_per_country,counts,by="country") %>% mutate(average_perforamnce_with_bonus=average_perforamnce_with_bonus/n)
 
+data = medium_performance_per_country  %>% arrange(desc(average_perforamnce_with_bonus))
 
-for(i in 1:4){
-  
-test_data = country_stats[i,] %>% select(drivers,constructors,held_races,circuits_used,held_races_by_drivers,held_seasons_by_constr)
-name = country_stats$country[i]
-
-data = rbind(maxs,mins,test_data)
-
-colnames(data) <- c(paste("Drivers \n","[",test_data[1,][1],"]",sep=""),
-                    paste("Constructors \n","[",test_data[1,][2],"]",sep=""),
-                    paste("\n\n Race weekends \n","[",test_data[1,][3],"]",sep=""),
-                    paste("Circuits\n","[",test_data[1,][4],"]",sep=""),
-                    paste("\n\n Held races \n by drivers\n","[",test_data[1,][5],"]",sep=""),
-                    paste(" Held seasons \n  by constructors \n","[",test_data[1,][6],"]\n",sep=""))
-
-radarchart(data, axistype=0,
-           
-    #polygon
-    pcol=rgb(0/255,0/255,0/255,0.9) , pfcol=rgb(225/255,225/255,77/255,0.4) , plwd=3,
-
-    #grid
-    cglcol="grey", cglty=3, axislabcol="grey", cglwd=1,
- 
-    #labels
-    vlcex=0.9,
-    title=paste(name," (",toString(i),"°)",sep="")
-    )
-}
-
-# reset dei par e pulizia ambiente
-par(c)
-rm(c,layout.matrix,maxs,mins,test_data)
+ggplot(data=data,aes(x= reorder(country,average_perforamnce_with_bonus),y=average_perforamnce_with_bonus)) +
+  geom_bar(aes(fill=average_perforamnce_with_bonus),color="black",size=0.35,stat = 'identity', show.legend = FALSE) +
+  theme(axis.text.x = element_text(angle=52.5, vjust=1, hjust=1,size=9), plot.margin = margin(0.2, 0.5, 0, 0, "cm"),plot.title = element_text(size = 10,face="bold")) +
+  scale_y_continuous(breaks = pretty(data$average_perforamnce_with_bonus, n = 10)) +
+  labs(x="",y="",title="Average performance of top 15 drivers for each country")+
+  coord_flip()+
+  scale_fill_distiller(palette="YlOrRd",direction = 1)
 ```
+It is curious to note how the ranking is very similar to that of the most present countries. One possible reason is that if a nation has had multiple drivers it is more likely that one of them was very good. It must also be taken into consideration that constructors may prefer to hire drivers of the same nationality, moreover, the constructors themselves often give life to initiatives and projects for the growth and selection of talents in their own territory. Examples are: [Ferrari Driver Academy](https://www.ferrari.com/it-IT/fda) in Italy, [McLaren Young Driver Programme](https://www.mclaren.com/racing/team/young-driver-programme/) in UK.
+
+In the following table we recap the main metrics of the 49 nations that participated in Formula One.
 
 ```{r,include = TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=12, fig.height=2}
 
@@ -1411,13 +1403,13 @@ data = country_stats  %>% arrange(desc(score))
 
 data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))
 
-colnames(data)=c("Country","Score","Circuitrs","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
+colnames(data)=c("Country","Score","Circuits","Race weekends","Drivers","Held races by drivers","Constructors","Held seasons by constructors")
 
 reactable(data,searchable = TRUE,bordered = TRUE,height = 400)
 ```
 
 # Which is the most successful constructor of all time?
-Formula One is not all about drivers, in fact each of them competes for a manufacturer who is responsible for building, designing and researching the car. Obviously the possibility of a driver to win a race or to win the world title also depends on the constructor for which he races. A faster car is better then a slower one! So let's see which constructors have been the most present and winning ones over the 71 years of Formula One. The following plot illustrate the evolution of the n° of held seasons for the 10 constructors which partecipated the most. Some of them are no longer racing nowadays. It's worth to note that the graph starts from 1950 but the *constructors championship* actually has been introduced in 1958.
+Formula One is not all about drivers, in fact each of them competes for a constructor (*racing team*) who is responsible for building, designing and researching the car. Obviously the possibility of a driver to win a race or to win the world title also depends on the constructor for which he races. A faster car is better then a slower one! So let's see which constructors have been the most present and winning ones over the 71 years of Formula One. The following plot illustrate the evolution of the n° of held seasons for the 10 constructors which partecipated the most. Some of them are no longer racing nowadays. It's worth to note that the graph starts from 1950 but the *constructors championship* actually has been introduced in 1958.
 
 ```{r,include = TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=12, fig.height=2}
 # Building historical data for constructors (partecipation in seasons)
@@ -1447,22 +1439,25 @@ ok_constr = ok_constr[0:n,]
 history_data_filtered = inner_join(ok_constr,history_data,by="name") %>% mutate(constructorId=constructorId.x) %>% select(-constructorId.y)
 
 history_data_filtered = history_data_filtered %>% mutate(label=paste(name,"-",held_seasons))
+```
 
-if(FALSE){
+```{r,eval = render_anim, include=TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=12, fig.height=2}
+
 gif_data = history_data_filtered  %>% ggplot(aes(x=year,y=seasons_held,group=constructorId,color=reorder(label,-held_seasons)))+
-    geom_line(size=1.3) +
-    geom_point(size=2.5) +
+    geom_line(size=1.85) +
+    geom_point(size=4.5) +
     ggtitle("Historical evolution of n° held seasons for top 10 constructors who participated the most") +
     ylab("n° held seasons") +
     xlab("Year") +
     transition_reveal(year) +
     scale_y_continuous(breaks = seq(0,75,5)) +
     scale_x_continuous(breaks = pretty(history_data_filtered$year, n = 10)) + 
-    labs(color='Constructor')
+    labs(x="",y="",color='Constructor') + 
+    theme(plot.title = element_text(size = 30),legend.title = element_text(size = 22),axis.text=element_text(size=16),legend.text=element_text(size=16))
 
-animate(gif_data, duration = 17, fps = 24, width = 1500, height = 750, renderer = gifski_renderer())
+animate(gif_data, duration = 18, fps = 20, width = 1600, height = 780, renderer = gifski_renderer())
 anim_save("held_seasons_by_constructor_evolution.gif")
-}
+
 
 ```
 
@@ -1495,52 +1490,57 @@ ok_constr = ok_constr %>% filter(championships>1)
 history_data_filtered = inner_join(ok_constr,history_data,by="name") %>% mutate(constructorId=constructorId.x) %>% select(-constructorId.y)
 
 history_data_filtered = history_data_filtered %>% mutate(label=paste(name,"-",championships))
+```
 
-if(FALSE){
+```{r,eval = render_anim, include=TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=12, fig.height=2}
+
 gif_data = history_data_filtered  %>% ggplot(aes(x=year,y=seasons_won,group=constructorId,color=reorder(label,-championships)))+
-    geom_line(size=1.3) +
-    geom_point(size=2.5) +
+    geom_line(size=1.85) +
+    geom_point(size=4.5) +
     ggtitle("Historical evolution of n° constructor championships") +
     ylab("n° constructors championships titles") +
     xlab("Year") +
     transition_reveal(year) +
     scale_y_continuous(breaks = seq(0,16,2)) +
     scale_x_continuous(breaks = c(seq(1950,2020,5))) + 
-    labs(color='Constructor')
+    labs(x="",y="",color='Constructor') +
+    theme(plot.title = element_text(size = 30),legend.title = element_text(size = 22),axis.text=element_text(size=16),legend.text=element_text(size=16))
 
-animate(gif_data, duration = 17, fps = 24, width = 1500, height = 750, renderer = gifski_renderer())
+animate(gif_data, duration = 18, fps = 20, width = 1600, height = 780, renderer = gifski_renderer())
 anim_save("won_seasons_by_constructor_evolution.gif")
-}
+
 ```
 
-
+With the following graphs, we summarize the ranking of manufacturers with the highest number of world titles (*constructors's championships*) and the relative *win rate*: ($\frac{world titles}{participations}$).
 
 ```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=2.5,fig.align='center'}
 
 # Plot top costruttori per n° di campionati vinti and win rate
 
-data = constr_stats  %>% arrange(desc(championships)) %>% filter(championships>0)
+data = constr_stats  %>% arrange(desc(championships)) %>% filter(championships>0) 
 
 x = ggplot(data=data,aes(x= reorder(name,championships),y=championships)) +
-  geom_bar(aes(fill=championships),stat = 'identity', show.legend = FALSE) +
+  geom_bar(aes(fill=championships),color="black",size=0.35,stat = 'identity', show.legend = FALSE) +
   theme(axis.text.x = element_text(angle=0, vjust=0, hjust=0.5,size=9), plot.margin = margin(0.1, 0, 0, 0, "cm"),plot.title = element_text(size = 10,face="bold")) +
   scale_y_continuous(breaks = pretty(data$championships, n = 10)) +
   labs(x="",y="",title="n° of world titles")+
-  scale_fill_gradient2(low="#e5f5e0",mid = "#a1d99b", high="#006D2C") +
+  scale_fill_distiller(palette="YlGn",direction = 1,limits=c(-3,17)) +
   coord_flip()
 
 data = constr_stats  %>% arrange(desc(seasons_win_ratio)) %>% filter(seasons_win_ratio>0)
 
 y= ggplot(data=data,aes(x= reorder(name,seasons_win_ratio),y=seasons_win_ratio)) +
-  geom_bar(aes(fill=seasons_win_ratio),stat = 'identity', show.legend = FALSE) +
+  geom_bar(aes(fill=seasons_win_ratio),color="black",size=0.35,stat = 'identity', show.legend = FALSE) +
   theme(axis.text.x = element_text(angle=0, vjust=1, hjust=0.5,size=9), plot.margin = margin(0.1, 0.25, 0, 0, "cm"),plot.title = element_text(size = 10,face="bold")) +
   scale_y_continuous(breaks = pretty(data$seasons_win_ratio, n = 10)) +
   labs(x="",y="",title="World titles win rate")+
-  scale_fill_gradient2(low="#e5f5e0",mid = "#a1d99b", high="#006D2C") +
+  scale_fill_distiller(palette="YlGn",direction = 1,limits=c(-0.125,1.1)) +
   coord_flip()
 
 grid.arrange(x,y, ncol=2,widths=c(0.9,1))
 ```
+
+We notice that [Brawn GP](https://en.wikipedia.org/wiki/Brawn_GP) has as winning rate of 100%. In fact this team has won the only championship in which it has participated (2009).
 
 ```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=2.5,fig.align='center'}
 # Some constructors metrics
@@ -1597,7 +1597,7 @@ constr_stats = constr_stats %>% mutate(performance=0.25*win_rate+0.25*podium_rat
 
 ```
 
-Very similarly to the drivers case, through data analysis we are able to extract some useful informations. As we did for drivers, for each constructor we calculate the total amount of scored points with normalized data (same scoring system for each year) in order to setup a fair rating system. We will also count *held races*, *wins*, *podiums* ,*...* and for each of this metric we will calculate the *success/trials* rate in order to to remove the advantage factor for the teams that participated the most. We will then setup a *performance* metric as the one for drivers:
+Very similarly to the drivers case, through data analysis we are able to extract some useful informations. As we did for drivers, for each constructor we calculate the total amount of scored points with normalized data (same scoring system for each year) in order to setup a fair rating system. We will also count *held races*, *wins*, *podiums* and *poles* and for each of this metric we will calculate the rate (*relative frequency*) in order to to remove the advantage factor for the teams that participated the most. We will then setup a *performance* metric as the one for drivers:
 
 
 $$performance = \frac{1}{4} * win \; rate+ \frac{1}{4}*podium \; rate + \frac{1}{4} *points \; rate+\frac{1}{4}*pole \; rate$$
@@ -1606,20 +1606,19 @@ Similarly to drivers, only constructor with a minimum of 50 held races are allow
 
 ```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=4,fig.align='center'}
 # top 20 constructors of all time with car reliability BONUS
-data = constr_stats  %>% arrange(desc(performance)) %>% filter(held_races>50)
+data = constr_stats  %>% arrange(desc(performance)) %>% filter(held_races>50) 
 
 ggplot(data=data[0:20,],aes(x= reorder(name,performance),y=performance)) +
-  geom_bar(aes(fill=performance),stat = 'identity', show.legend = FALSE) +
+  geom_bar(aes(fill=performance),color="black",size=0.35,stat = 'identity', show.legend = FALSE) +
   theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +
   labs(x="",y="",title="Most dominant F1 constructors of all time") +
-  scale_fill_gradient2(low="#e5f5e0",mid = "#a1d99b", high="#006D2C") +
+  scale_fill_distiller(palette="YlGn",direction = 1,limits=c(-0.03,0.39)) +
   coord_flip()
 ```
 
 As we can see the ranking is dominated by Mercedes. This result is attributable to the excellent results obtained in recent years. One thing is for certain, in the last years, Mercedes are doing something that's never been seen in the 71-year history of the Formula One World Championship. We've seen similar periods of dominance in the sport before however, such as McLaren's 1988 season, where the stunning MP4/4 won 15 of the 16 races at the hands of Ayrton Senna and Alain Prost. Or in 2002, where Michael Schumacher and Rubens Barrichello combined to win 15 of the 17 races, thus sealing Schumi's historic 5th World Championship, equalling the great Juan Manuel Fangio in the process.
 
-Here is a recap of the metrics for all constructors
-
+In the following table we recap the main metrics of the 211 constructors that participated in Formula One.
 ```{r,include = TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=12, fig.height=2}
 
 data = constr_stats  %>% arrange(desc(performance))
@@ -1633,17 +1632,29 @@ colnames(data)=c("Constructor","Performance","Nationality","Held seasons","World
 reactable(data,searchable = TRUE,bordered = TRUE,height = 400)
 ```
 
+# Conclusions
+Through data analysis we were able to evaluate the performance of drivers and constructors on the basis of multiple metrics. Those metrics allowed us to define a more sophisticated ranking system which, based on some assumptions, allowed us to isolate some variabilty factors relating to the changes that have occurred over the decades, allowing us to perform a more fair and objective evaluation. We were also able to draw conclusions about countries, discovering which of them partecipated the most and which of these is the homeland of the best drivers. 
+
+The proposed ranking systems are based on subjective assumptions and parameters, but in my opinion they can be considered more balanced methods than the classic ones which are based on the simple count of absolute frequencies of basic metrics.
+
+### Further improvements
+Undoubtedly, the rating systems can be improved, especially the one regards the drivers. For examples, we can consider, for each race, which driver performed *the fastest lap* and award him with some performance score. We can also evaluate the drivers with respect to the *positions gained* (position in the starting grid and final position). A very complex metric that could be included is the *consistency of lap times*. Unfortunately, these metrics require the data related to each lap of each race in the history of *F1*. These data are only partially provided by the dataset, in fact the dataset provides the data relating to all the laps of only about half of the races; this is the reason why these metrics are not considered here. Their use would have disadvantaged the drivers who participated in the races for which the values are not present.
+
+Another factor that is often a source of discussion among fans is the *car's performance factor*. Sometimes a good driver finds himself, unfortunately in non-competitive teams, thus not being able to demonstrate his skills. It must be said, however, that typically the best drivers are hired by the most winning teams, and vice versa. It would be interesting, but at the same time very complex, to try to isolate this factor.
+
 # Some curiosities about F1
 
-## kms
-
-## crypto
-
-
+## Estimation of the total km traveled in the races
 
 ```{r, out.width = "1440px",echo = !knit_relazione,fig.align='center'}
 knitr::include_graphics("imgs\\distances_img.jpg")
 ```
+
+## Formula One and Blockchain
+
+
+
+
 
 
 

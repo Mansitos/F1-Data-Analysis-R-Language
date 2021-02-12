@@ -1,0 +1,8 @@
+"0","# top 20 driver of all time with car reliability BONUS"
+"0","data = driver_stats  %>% arrange(desc(performance_with_bonus)) %>% filter(races>20)"
+"0",""
+"0","ggplot(data=data[0:20,],aes(x= reorder(full_name,performance_with_bonus),y=performance_with_bonus)) +"
+"0","  geom_bar(aes(fill=performance_with_bonus),color=""black"",size=0.35,stat = 'identity', show.legend = FALSE) +"
+"0","  theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +"
+"0","  labs(x="""",y="""",title=""Most dominant F1 drivers of all time with mechanical failures bonus"") +"
+"0","  coord_flip()"

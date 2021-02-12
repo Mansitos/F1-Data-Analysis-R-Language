@@ -1,0 +1,8 @@
+"0",""
+"0","data = country_stats  %>% arrange(desc(score))"
+"0",""
+"0","data = data %>% select(country,score,circuits_used,held_races,drivers,held_races_by_drivers,constructors,held_seasons_by_constr) %>% mutate(score=round(score,2))"
+"0",""
+"0","colnames(data)=c(""Country"",""Score"",""Circuitrs"",""Race weekends"",""Drivers"",""Held races by drivers"",""Constructors"",""Held seasons by constructors"")"
+"0",""
+"0","reactable(data,searchable = TRUE,bordered = TRUE,height = 400)"
