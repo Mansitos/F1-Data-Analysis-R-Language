@@ -1,7 +1,0 @@
-"0",""
-"0","# --- Calcolo win ratio (seasons)"
-"0","constr_stats = constr_stats %>% mutate(seasons_win_ratio=championships/held_seasons)"
-"0",""
-"0","# Pulizia env"
-"0","rm(constr,seasons_constr_winners,seasons_constr_count)"
-"0",""

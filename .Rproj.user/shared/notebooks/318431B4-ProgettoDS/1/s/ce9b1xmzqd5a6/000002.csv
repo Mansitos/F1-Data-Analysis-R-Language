@@ -1,0 +1,7 @@
+"0","# BUG? SOMETIMES SOME WORDS ARE OMMITTED??? FOR SAFETY USE A SAVED ONE WHICH WORKS."
+"0",""
+"0","# World cloud test con nazioni"
+"0","if(TRUE){"
+"0","wordcloud(country_stats$country,country_stats$score+4,scale=c(12,0.4),max.words = 100,min.freq = 1,random.order=FALSE,rot.per=0.35,ordered.colors = FALSE,random.color = TRUE,colors = brewer.pal(7,""YlOrRd"")[c(3,4,4,5,5,6,6,7)])"
+"0","}"
+"0",""

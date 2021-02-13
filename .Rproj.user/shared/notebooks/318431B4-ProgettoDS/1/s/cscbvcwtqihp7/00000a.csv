@@ -1,0 +1,6 @@
+"0",""
+"0",""
+"0","# 2nd place plot"
+"0",""
+"0","driver_stats = driver_stats %>% arrange(desc(second))"
+"0","driver_stats"

@@ -1,0 +1,6 @@
+"0",""
+"0","ggplot(data=data[0:20,],aes(x= reorder(full_name,performance),y=performance)) +"
+"0","  geom_bar(aes(fill=performance),stat = 'identity', show.legend = FALSE) +"
+"0","  theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +"
+"0","  labs(x="""",y="""",title=""performance"") +"
+"0","  coord_flip()"

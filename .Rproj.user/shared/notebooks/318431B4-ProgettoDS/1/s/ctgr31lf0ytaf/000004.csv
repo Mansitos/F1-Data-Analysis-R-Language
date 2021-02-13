@@ -1,0 +1,6 @@
+"0",""
+"0","ggplot(data=data,aes(x= reorder(full_name,championship),y=championship)) +"
+"0","  geom_bar(aes(fill=championship),stat = 'identity', show.legend = FALSE) +"
+"0","  theme(axis.text.x = element_text(angle=0, vjust=1, hjust=1),axis.text.y = element_text(size=10.5)) +"
+"0","  labs(x="""",y="""",title=""Classifica piloti per n° di titoli mondiali"") +"
+"0","  coord_flip()"

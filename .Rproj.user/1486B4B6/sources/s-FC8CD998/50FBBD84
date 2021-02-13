@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1613230701397.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "50FBBD84",
+    "lastKnownWriteTime" : 8026363914660965410,
+    "last_content_update" : 1613230701397,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "BAEE928A",
+        "caption" : "drivers_constr_arcs",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=drivers_constr_arcs&cache_key=BAEE928A",
+        "displayedObservations" : 2117,
+        "environment" : "",
+        "expression" : "drivers_constr_arcs",
+        "object" : "drivers_constr_arcs",
+        "preview" : 0,
+        "totalObservations" : 2117,
+        "variables" : 2
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

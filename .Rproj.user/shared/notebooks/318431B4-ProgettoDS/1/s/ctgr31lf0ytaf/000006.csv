@@ -1,0 +1,4 @@
+"0",""
+"0","# Plot top costruttori per n° di campionati vinti"
+"0","data = constr_stats  %>% arrange(desc(championships)) %>% filter(championships>0)"
+"0","data"

@@ -1,0 +1,202 @@
+"2","r error 4 (R code execution error)"
+"0","# Loading csvs data"
+"0",""
+"0","# NB: errore in riga 4376 dataset driverStand: corretto manualmente"
+"0","# NB: errore in riga 23765 dataset results: corretto manualmente"
+"0","# NB: errore dataset driverstandings, convertito int txt e funziona..."
+"0",""
+"0","circuits <- as_tibble(read_csv(""data\\circuits.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  circuitId = [32mcol_double()[39m,
+  circuitRef = [31mcol_character()[39m,
+  name = [31mcol_character()[39m,
+  location = [31mcol_character()[39m,
+  country = [31mcol_character()[39m,
+  lat = [32mcol_double()[39m,
+  lng = [32mcol_double()[39m,
+  alt = [31mcol_character()[39m,
+  url = [31mcol_character()[39m
+)
+
+"
+"0","constrRes <- as_tibble(read_csv(""data\\constructorResults.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  constructorResultsId = [32mcol_double()[39m,
+  raceId = [32mcol_double()[39m,
+  constructorId = [32mcol_double()[39m,
+  points = [32mcol_double()[39m,
+  status = [31mcol_character()[39m
+)
+
+"
+"0","constr <- as_tibble(read_csv(""data\\constructors.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  constructorId = [32mcol_double()[39m,
+  constructorRef = [31mcol_character()[39m,
+  name = [31mcol_character()[39m,
+  nationality = [31mcol_character()[39m,
+  url = [31mcol_character()[39m
+)
+
+"
+"0","constrStand <- as_tibble(read_csv(""data\\constructorStandings.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  constructorStandingsId = [32mcol_double()[39m,
+  raceId = [32mcol_double()[39m,
+  constructorId = [32mcol_double()[39m,
+  points = [32mcol_double()[39m,
+  position = [32mcol_double()[39m,
+  positionText = [31mcol_character()[39m,
+  wins = [32mcol_double()[39m
+)
+
+"
+"0","drivers <- as_tibble(read_csv(""data\\drivers.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  driverId = [32mcol_double()[39m,
+  driverRef = [31mcol_character()[39m,
+  number = [31mcol_character()[39m,
+  code = [31mcol_character()[39m,
+  forename = [31mcol_character()[39m,
+  surname = [31mcol_character()[39m,
+  dob = [34mcol_date(format = """")[39m,
+  nationality = [31mcol_character()[39m,
+  url = [31mcol_character()[39m
+)
+
+"
+"0","driverStand <- as_tibble(read_csv(""data\\driverStandings.txt""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  driverStandingsId = [32mcol_double()[39m,
+  raceId = [32mcol_double()[39m,
+  driverId = [32mcol_double()[39m,
+  points = [32mcol_double()[39m,
+  position = [32mcol_double()[39m,
+  positionText = [32mcol_double()[39m,
+  wins = [32mcol_double()[39m
+)
+
+"
+"0","lapTimes <- as_tibble(read_csv(""data\\lapTimes.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  raceId = [32mcol_double()[39m,
+  driverId = [32mcol_double()[39m,
+  lap = [32mcol_double()[39m,
+  position = [32mcol_double()[39m,
+  time = [34mcol_time(format = """")[39m,
+  milliseconds = [32mcol_double()[39m
+)
+
+"
+"0","pits <- as_tibble(read_csv(""data\\pitStops.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  raceId = [32mcol_double()[39m,
+  driverId = [32mcol_double()[39m,
+  stop = [32mcol_double()[39m,
+  lap = [32mcol_double()[39m,
+  time = [34mcol_time(format = """")[39m,
+  duration = [31mcol_character()[39m,
+  milliseconds = [32mcol_double()[39m
+)
+
+"
+"0","quali <- as_tibble(read_csv(""data\\qualifying.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  qualifyId = [32mcol_double()[39m,
+  raceId = [32mcol_double()[39m,
+  driverId = [32mcol_double()[39m,
+  constructorId = [32mcol_double()[39m,
+  number = [32mcol_double()[39m,
+  position = [32mcol_double()[39m,
+  q1 = [31mcol_character()[39m,
+  q2 = [31mcol_character()[39m,
+  q3 = [31mcol_character()[39m
+)
+
+"
+"0","races <- as_tibble(read_csv(""data\\races.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  raceId = [32mcol_double()[39m,
+  year = [32mcol_double()[39m,
+  round = [32mcol_double()[39m,
+  circuitId = [32mcol_double()[39m,
+  name = [31mcol_character()[39m,
+  date = [34mcol_date(format = """")[39m,
+  time = [31mcol_character()[39m,
+  url = [31mcol_character()[39m
+)
+
+"
+"0","results <- as_tibble(read_csv(""data\\results.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  resultId = [32mcol_double()[39m,
+  raceId = [32mcol_double()[39m,
+  driverId = [32mcol_double()[39m,
+  constructorId = [32mcol_double()[39m,
+  number = [32mcol_double()[39m,
+  grid = [32mcol_double()[39m,
+  position = [31mcol_character()[39m,
+  positionText = [31mcol_character()[39m,
+  positionOrder = [32mcol_double()[39m,
+  points = [32mcol_double()[39m,
+  laps = [32mcol_double()[39m,
+  time = [31mcol_character()[39m,
+  milliseconds = [31mcol_character()[39m,
+  fastestLap = [31mcol_character()[39m,
+  rank = [31mcol_character()[39m,
+  fastestLapTime = [31mcol_character()[39m,
+  fastestLapSpeed = [31mcol_character()[39m,
+  statusId = [32mcol_double()[39m
+)
+
+"
+"2","6 parsing failures.
+  row    col expected actual                file
+17716 number a double    \N 'data\results.csv'
+17717 number a double    \N 'data\results.csv'
+17718 number a double    \N 'data\results.csv'
+17719 number a double    \N 'data\results.csv'
+17940 number a double    \N 'data\results.csv'
+..... ...... ........ ...... ...................
+See problems(...) for more details.
+"
+"0","seasons <- as_tibble(read_csv(""data\\seasons.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  year = [32mcol_double()[39m,
+  url = [31mcol_character()[39m
+)
+
+"
+"0","status <- as_tibble(read_csv(""data\\status.csv""))"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  statusId = [32mcol_double()[39m,
+  status = [31mcol_character()[39m
+)
+
+"
