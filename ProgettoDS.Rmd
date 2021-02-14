@@ -949,7 +949,7 @@ knitr::include_graphics("imgs\\drivers_labels\\Fangio.jpg")
 knitr::include_graphics("imgs\\drivers_labels\\Ascari.jpg")
 ```
 
-Fangio’s records remained unbeaten for over 30 years. 50s are remembered as the deadliest decade in F1, with 15 casualties. Helmeds became mandatory 2 years after the birth of F1, in 1952. Seatbelts became mandatory in 1972.
+Fangio’s records remained unbeaten for over 30 years. 50s are remembered as the deadliest decade in F1, with 15 casualties. Helmets became mandatory 2 years after the birth of F1, in 1952. Seatbelts became mandatory in 1972.
 
 ### The driver of the 1960s
 The first driver to beat Fangio’s wins record was Jim Clark, a driver who dominated the circuits in the 1960s.
@@ -1100,7 +1100,7 @@ grid.arrange(x,y, ncol=2,widths=c(1,1))
 
 ### The problem with different number of races
 
-Similarly to the problem previously highlighted, related to the different scoring systems for different years, the metrics illustrated (*wins, podiums, pole positions and total points*) are also influenced by a variability factor dependent on the years: the number of races for each season has varied over the years. So for example, if driver *a* partecipated only in a season with 10 races, and driver *b* partecipated only in a season with 20 races, pilot *b* had double the chance of winning races and so on. A more fair approach is to consider the rates of each metric, which means working with *relative frequencies* instead of *absolute frequencies* . New performance metrics are calculated in order to make the number of *held races* irrelevant:
+Similarly to the problem previously highlighted, related to the different scoring systems for different years, the metrics illustrated (*wins, podiums, pole positions and total points*) are also influenced by a variability factor dependent on the years: the number of races for each season has varied over the years. So for example, if driver *a* partecipated only in a season with 10 races, and driver *b* partecipated only in a season with 20 races, pilot *b* had double the chance of winning races and so on. A more fair approach is to consider the rates of each metric, which means working with *relative frequencies* instead of *absolute frequencies*. New performance metrics are calculated in order to make the number of *held races* irrelevant:
 
 - $win \; rate = \frac{wins}{held \; races}$
 - $podium \; rate = \frac{podiums}{held \; races}$
@@ -1152,7 +1152,7 @@ Now that we have isolated the two main factors of variability between different 
 
 $$performance = \frac{1}{4} * win \; rate+ \frac{1}{4}*podium \; rate + \frac{1}{4} *points \; rate+\frac{1}{4}*pole \; rate$$
 
-The choice of weights is questionable and can be considered an objective choice. We may suppose that assigning the same weights to each metric is a compromise that should not penalize any driver.
+The choice of weights is questionable and can be considered a subjective choice. We may suppose that assigning the same weights to each metric is a compromise that should not penalize any driver.
 
 Like before, only drivers with at least 20 held races are considered in the ranking. 
 

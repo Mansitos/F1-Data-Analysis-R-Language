@@ -1,0 +1,27 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1612092461155.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1934381994",
+    "id" : "FB8DF3CE",
+    "lastKnownWriteTime" : 1613321877,
+    "last_content_update" : 1613321877496,
+    "path" : "E:/Progetto-DataScience-UNI-F1-Data-Analysis-R-Language/ProgettoDS.Rmd",
+    "project_path" : "ProgettoDS.Rmd",
+    "properties" : {
+        "cursorPosition" : "1157,0",
+        "last_setup_crc32" : "",
+        "scrollLine" : "1141",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
