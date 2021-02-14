@@ -11,3 +11,5 @@ What you can find here:
 - The code is public, the dataset too (available on kaggle.com, link in the introduction)
 - Code is partially commented in italian... the report is in english
 - lot of bugs and unclear code :P
+
+(Actually my first data science project)
