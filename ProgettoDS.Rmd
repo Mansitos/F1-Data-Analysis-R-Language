@@ -1,9 +1,13 @@
 ---
 title: "A journey through 71 years of Formula 1"
 author: "Andrea Mansi - 137857 - Università degli Studi di Udine"
-date: "February 16, 2021"
+date: "February 15, 2021"
 output: html_document
 ---
+
+<style>
+  body {text-align: justify}
+</style>
 
 ```{r setup, include = TRUE, echo = FALSE, message=FALSE, warning=FALSE}
 
@@ -18,7 +22,7 @@ knitr::opts_chunk$set(echo = TRUE)
 knit_report = TRUE
 
 # if false -> gif animations render skipped (they are very time consuming)
-render_anim = FALSE
+render_anim = TRUE
 ```
 
 
@@ -39,6 +43,7 @@ library("rnaturalearthdata") # world data for ggplot map
 library(reactable) # nice tables
 library(gganimate) # for gif renders (ggplot2)
 library(visNetwork) # cool interactive networks :)
+library(igraph) # network analysis
 ```
 
 ```{r, include = !knit_report,message=FALSE,warning=FALSE}
@@ -900,21 +905,21 @@ ggplot(data=data[0:20,],aes(x= reorder(full_name,performance_with_bonus),y=perfo
 
 # Introduction
 
-In this presentation we will analize data about [Formula One](https://www.formula1.com/) history. We will explore data relating drivers, constructors, countries, circuits, race results etc. We will try to find out which drivers and constructors have dominated this motorsport during these 71 years. In order to evaluate their performance, the presentation proposes a ranking system, based on multiple metrics. The presentation also include some statistics and informations about F1 itself. All the used data are available [here](https://www.kaggle.com/rohanrao/formula-1-world-championship-1950-2020) and consist of 13 csv files. Sourcecode is available [here](https://github.com/Mansitos/Progetto-DataScience-UNI-F1-Data-Analysis-R-Language).
+In this presentation we will analize data about [Formula One](https://www.formula1.com/) history. We will explore data relating drivers, constructors, countries, circuits, race results, etc. We will try to find out which drivers and constructors have dominated this motorsport during these 71 years. In order to evaluate their performance, the presentation proposes a ranking system, based on multiple metrics. The presentation also include some statistics and informations about F1 itself. All the used data are available [here](https://www.kaggle.com/rohanrao/formula-1-world-championship-1950-2020) and consist of 13 csv files. Sourcecode is available [here](https://github.com/Mansitos/Progetto-DataScience-UNI-F1-Data-Analysis-R-Language).
 
 ## What is Formula One
 Formula One (abbreviated to *F1*) is the highest class of international auto racing for single-seater racing car approved by the [Fédération Internationale de l’Automobile (FIA)](https://www.fia.com/). A Formula One season consists of a series of races, known as *Grands Prix*, which take place worldwide on purpose-built circuits and on closed public roads.
 
 The results of each race are evaluated using a *points system* to determine two annual World Championships: one for drivers and one for constructors.
 
-Formula One cars are considered the fastest regulated road-course racing cars in the world, characterized by very high cornering speeds, achieved through the generation of large amounts of aerodynamic downforce. Most modern F1 cars can achieve peaks of 6.5 lateral g while cornering and approximately top speeds of 360km/h. Tracion control and other driving aids have been banned since 2008.
+Formula One cars are considered the fastest regulated road-course racing cars in the world, characterized by very high cornering speeds, achieved through the generation of large amounts of aerodynamic downforce. Most modern F1 cars can achieve peaks of 6.5 lateral g while cornering and approximately top speeds of 360km/h. Traction control and other driving aids have been banned since 2008.
 
-*You can learn more on how F1 works by watching [this video](https://www.youtube.com/watch?v=twAlqtvVMdc).*
+*You can learn more on how F1 works by watching this video: [F1 Drivers Explain F1](https://www.youtube.com/watch?v=twAlqtvVMdc).*
 
 ## Some history about F1
 Formula One has its roots in the *European Grand Prix championships* of the 1920s and 1930s. The foundation of F1 began in 1946 with the FIA’s standardisations of rules, which was followed by the first *World Championships of Drivers* in 1950.
 
-The history of Formula One is usually divided into eras, but this division is tipycally based on subjective criterias and there is no real official division. We will dive deep into the history of Formula One by introducing some of the most iconic drivers by querying the data and obtaining important results related to their careers, such as number of wins, number of podiums etc.
+The history of Formula One is usually divided into eras, but this division is tipycally based on subjective criterias and there is no real official division. We will dive deep into the history of Formula One by introducing some of the most iconic drivers. We will do so by querying the data and obtaining important results related to their careers, such as number of wins, number of podiums etc.
 
 By analyzing the data we can also obtain some numbers characterizing the history of F1:
 
@@ -922,7 +927,7 @@ By analyzing the data we can also obtain some numbers characterizing the history
 knitr::include_graphics("imgs\\stats_img.jpg")
 ```
 
-*You can learn more on F1 history by watching [this video](https://www.youtube.com/watch?v=bbPOCRmpAzY). and [this one](https://www.youtube.com/watch?v=j9LNd-c6OVM&t=0s)*
+*You can learn more on F1 history by watching those two videos: [The History Of Formula 1 | Race 1000](https://www.youtube.com/watch?v=bbPOCRmpAzY) and [History Of F1's Innovation | F1 70th Anniversary](https://www.youtube.com/watch?v=j9LNd-c6OVM&t=0s).*
 
 ### First F1 winner
 Giuseppe Farina (also known as Giuseppe Antonio “Nino” Farina) won the first F1 race and the first F1 Drivers Championship. Farina drove for Ferrari, Alfa Romeo and Lancia. Let’s see what the data can tell us about this iconic driver:
@@ -944,7 +949,7 @@ knitr::include_graphics("imgs\\drivers_labels\\Fangio.jpg")
 knitr::include_graphics("imgs\\drivers_labels\\Ascari.jpg")
 ```
 
-Fangio’s records remained unbeaten for over 30 years. 1950s are remembered as the deadliest decade in F1, with 15 casualties. Helmeds became mandatory 2 years after the birth of F1, in 1952. Seatbelts became mandatory in 1972.
+Fangio’s records remained unbeaten for over 30 years. 50s are remembered as the deadliest decade in F1, with 15 casualties. Helmeds became mandatory 2 years after the birth of F1, in 1952. Seatbelts became mandatory in 1972.
 
 ### The driver of the 1960s
 The first driver to beat Fangio’s wins record was Jim Clark, a driver who dominated the circuits in the 1960s.
@@ -995,12 +1000,12 @@ With the advent of the hybrid era (2014-present), Formula One was dominated by M
 knitr::include_graphics("imgs\\drivers_labels\\Lewis.jpg")
 ```
 
-Hamilton is the first one to break Shumacher’s records and is currently considered the best F1 driver of our times.
+Hamilton is the first one to break Schumacher’s records and is currently considered the best F1 driver of our times.
 
 These are some of the drivers considered the greatest of all time by the community. 
-Now let's see if by analyzing the data we can confirm that the F1 community is right.
+Now let's see if, by analyzing the data, we can confirm that the F1 community is right.
 
-*You can learn more about these iconic drivers by watching [this video](https://www.youtube.com/watch?v=SLvchJt_Y4M&t=0s).*
+*You can learn more about these iconic drivers by watching this video: [The History Of The Record For Most F1 Wins](https://www.youtube.com/watch?v=SLvchJt_Y4M&t=0s).*
 
 # Who's the most dominant driver of all time?
 Which driver has dominated the circuits during the history of Formula One? It's difficult to tell, but data can help us! Often drivers are compared taking into consideration only simple metrics, such as: *races won*, *world titles*. Surely these metrics reflect the skill of the driver, however they are superficial evaluation criteria. For example, consider the case in which the driver *a* has won 100 races out of 500 and driver *b* has won 70 races out of 120. Would you still say that driver *a* is better than driver *b* just because he has won more races? The data collected during these 71 years can help us to build a more advanced evaluation system, based on multiple parameters, which will allow us to rank drivers in a more transparent and objective way. Let's start by showing some basic drivers summaries which are typically used as the main method of comparison.
@@ -1028,11 +1033,11 @@ grid.arrange(x,y, ncol=2,widths=c(0.75,1))
 
 ```
 
-If we take into account only these simple metrics, we would decree Lewis Hamilton and Michael Shumacher as the best drivers in history. But there are some problems to take into consideration to make a more correct evaluation, let's start from the first one.
+If we take into account only these simple metrics, we would decree Lewis Hamilton and Michael Schumacher as the best drivers in history. There are some problems to take into consideration to make a more correct evaluation, let's start from the first one.
 
 ### The problem with different scoring systems
 
-A significant metric in evaluating the skills of a driver is *amount of points* cumulated during their career. However, there is a problem: *scoring systems* have changed over the years, so it is a little unfair to draw too many conclusions by simply considering the sum of total points scored by each driver. In the following plot whe can see how points systems have changed during the history of Formula One.
+A significant metric in evaluating the skills of a driver is the *amount of points* cumulated during their career. However, there is a problem: *scoring systems* have changed over the years, so it is a little unfair to draw too many conclusions by simply considering the sum of total points scored by each driver. In the following plot whe can see how points systems have changed during the history of Formula One.
 
 ```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=4,fig.align='center'}
 # points per win over year plot
@@ -1095,7 +1100,7 @@ grid.arrange(x,y, ncol=2,widths=c(1,1))
 
 ### The problem with different number of races
 
-Similarly to the problem previously highlighted, related to the different scoring systems for different years, the metrics illustrated (*wins,podiums,pole positions and total points*) are also influenced by a variability factor dependent on the years: the number of races for each season has varied over the years. So for example, if driver *a* partecipated only in a season with 10 races, and driver *b* partecipated only in a season with 20 races, pilot *b* had double the chance of winning races and so on. A more fair approach is to consider the rates of each metric, which means working with *relative frequencies* instead of *absolute frequencies* . New performance metrics are calculated in order to make the number of *held races* irrelevant:
+Similarly to the problem previously highlighted, related to the different scoring systems for different years, the metrics illustrated (*wins, podiums, pole positions and total points*) are also influenced by a variability factor dependent on the years: the number of races for each season has varied over the years. So for example, if driver *a* partecipated only in a season with 10 races, and driver *b* partecipated only in a season with 20 races, pilot *b* had double the chance of winning races and so on. A more fair approach is to consider the rates of each metric, which means working with *relative frequencies* instead of *absolute frequencies* . New performance metrics are calculated in order to make the number of *held races* irrelevant:
 
 - $win \; rate = \frac{wins}{held \; races}$
 - $podium \; rate = \frac{podiums}{held \; races}$
@@ -1149,7 +1154,7 @@ $$performance = \frac{1}{4} * win \; rate+ \frac{1}{4}*podium \; rate + \frac{1}
 
 The choice of weights is questionable and can be considered an objective choice. We may suppose that assigning the same weights to each metric is a compromise that should not penalize any driver.
 
-Like before, only driver with at least 20 held races are considered in the ranking. 
+Like before, only drivers with at least 20 held races are considered in the ranking. 
 
 ```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=4,fig.align='center'}
 # top 20 driver of all time
@@ -1163,7 +1168,7 @@ ggplot(data=data[0:20,],aes(x= reorder(full_name,performance),y=performance)) +
   coord_flip()
 ```
 
-As we can see, on the top of the ranking we have most of the most iconic F1 drivers illustrated in the introduction. Lewis Hamilton is actually the driver with most of the records, but the result we get by reasoning on rates and with normalized data puts Juan Fangio in first position
+As we can see, on the top of the ranking we have most of the most iconic F1 drivers illustrated in the introduction. Lewis Hamilton is actually the driver with most of the records, but the result we get by reasoning on rates and with normalized data puts Juan Fangio in first position.
 
 ### Drivers of the past had to struggle against mechanical failures
 
@@ -1188,11 +1193,11 @@ ggplot(data=retire_per_year_stats[],aes(x= year,y=1-retire_ratio)) +
   labs(x="",y="",title="Probability to finish a race without having a mechanical failure over time")
 ```
 
-We can clearly see how modern drivers have had, in proportion to the races started, much fewer retirements due to mechanical problems, therefore, they have an advantage in the calculation related to the *performance* metric. We can fix this problem by introducing a performance multiplier for each driver, instead of recalculate all rates metrics. The bonus is calcualted as follow:
+We can clearly see how modern drivers have had, in proportion to the races started, much fewer retirements due to mechanical problems, therefore, they have an advantage in the calculation related to the *performance* metric. We can fix this problem by introducing a performance multiplier for each driver, instead of recalculating all rates metrics. The bonus is calcualted as follow:
 
 $$bonus = \frac{number \; of \; retirements \; due \; to \; mechanical \; failures}{held \; races}$$
 
-And then we can calculate again their performance score, simply by applying the mechanical failures bonus: $new \; performance = (1+bonus) * performance$. The new ranking is the following:
+Then we can calculate again their performance score, simply by applying the mechanical failures bonus: $new \; performance = (1+bonus) * performance$. The new ranking is the following:
 
 ```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=4,fig.align='center'}
 # top 20 driver of all time with car reliability BONUS
@@ -1205,7 +1210,7 @@ ggplot(data=data[0:20,],aes(x= reorder(full_name,performance_with_bonus),y=perfo
   coord_flip()
 ```
 
-Interestingly by taking this approach the list is dominated by past drivers and not by modern ones. The choiche to include the reliability (mechanical failures) bonus is questionable: some might say that the number of retirements due to mechanical failures does not totally depend on the car reliability but also on the driver's ability to drive it, therefore a better analysis should be performed in this regard.
+Interestingly by taking this approach the list is dominated by past drivers and not by modern ones. The choice to include the reliability (mechanical failures) bonus is questionable: some might say that the number of retirements due to mechanical failures does not totally depend on the car reliability but also on the driver's ability to drive it, therefore a better analysis should be performed in this regard.
 
 Table with metrics of all drivers with at least 20 races held (250 out of 850):
 
@@ -1319,7 +1324,7 @@ z = ggplot(data=country_stats[1:8,],aes(x= reorder(country,-held_races),y=held_r
 grid.arrange(x,y,z, ncol=3,widths=c(1,1,1))
 ```
 
-We can already see how United Kingdom has a very high number of drivers and constructors. If we set up a weighting system based on those three metrics we can decide which nation has been the most present one throughout the history of F1. We will use the following weights:
+We can already see how the United Kingdom has a very high number of drivers and constructors. If we set up a weighting system based on those three metrics we can decide which nation has been the most present one throughout the history of F1. We will use the following weights:
 
 - $races \; held \; by \; drivers = 0.3$;
 - $seasons \; held \; by \; constructors = 0.3$;
@@ -1334,14 +1339,14 @@ We summarize our results with the following *wordcloud* where the dimension of e
 # BUG? SOMETIMES SOME WORDS ARE OMMITTED??? FOR SAFETY USE A SAVED ONE WHICH WORKS.
 
 # World cloud test con nazioni
-if(TRUE){
+if(FALSE){
 wordcloud(country_stats$country,country_stats$score+4,scale=c(12,0.4),max.words = 100,min.freq = 1,random.order=FALSE,rot.per=0.35,ordered.colors = FALSE,random.color = TRUE,colors = brewer.pal(7,"YlOrRd")[c(3,4,4,5,5,6,6,7)])
 }
 
 ```
 
-```{r, out.width = "1440px",echo = !knit_report,fig.align='center'}
-knitr::include_graphics("imgs\\word_cloud.jpg")
+```{r, out.width = "700px",echo = !knit_report,fig.align='center'}
+knitr::include_graphics("imgs\\word_cloud.png")
 ```
 
 We can cleary see how United Kingdom was the most present country in the history of F1. This result is probably justified by the great amount of drivers and constructors
@@ -1384,7 +1389,7 @@ ggplot(data = world) +
 rm(world)
 ```
 
-*If you want to learn more on what happens behind the scenes of every grand prix, watch [this video](https://www.youtube.com/watch?v=MH6Loko0BOA)*
+*If you want to learn more on what happens behind the scenes of every grand prix, watch this video: [Building the greatest racing spectacle on the planet | DHL & F1](https://www.youtube.com/watch?v=MH6Loko0BOA).*
 
 ### Which country raised the fastest drivers?
 Using the data relating to the drivers and their performance, we can compute an estimate of the *average performance* of drivers from each country. We allow to enter the ranking only to countries that have had at least 15 drivers, and we compute the average by taking into consideration only the 15 best drivers for each of them.
@@ -1413,7 +1418,7 @@ ggplot(data=data,aes(x= reorder(country,average_perforamnce_with_bonus),y=averag
 ```
 It is curious to note how the ranking is very similar to that of the most present countries. One possible reason is that if a nation has had multiple drivers it is more likely that one of them was very good. It must also be taken into consideration that constructors may prefer to hire drivers of the same nationality, moreover, the constructors themselves often give life to initiatives and projects for the growth and selection of talents in their own territory. Examples are: [Ferrari Driver Academy](https://www.ferrari.com/it-IT/fda) in Italy, [McLaren Young Driver Programme](https://www.mclaren.com/racing/team/young-driver-programme/) in UK.
 
-In the following table we recap the main metrics of the 49 countries that participated in Formula One.
+In the following table we summarize the main metrics of the 49 countries that participated in Formula One.
 
 ```{r,include = TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=12, fig.height=2}
 
@@ -1529,7 +1534,7 @@ anim_save("won_seasons_by_constructor_evolution.gif")
 
 ```
 
-With the following graphs, we summarize the ranking of manufacturers with the highest number of world titles (*constructors's championships*) and the relative *win rate*: ($\frac{world titles}{participations}$).
+With the following graphs, we summarize the ranking of manufacturers with the highest number of world titles (*constructors's championships*) and the relative *win rate*: ($\frac{world \; titles}{participations}$).
 
 ```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=2.5,fig.align='center'}
 
@@ -1558,7 +1563,7 @@ y= ggplot(data=data,aes(x= reorder(name,seasons_win_ratio),y=seasons_win_ratio))
 grid.arrange(x,y, ncol=2,widths=c(0.9,1))
 ```
 
-We notice that [Brawn GP](https://en.wikipedia.org/wiki/Brawn_GP) has as a winning rate of 100%. In fact this team has won the only championship in which it has participated (2009).
+We notice that [Brawn GP](https://en.wikipedia.org/wiki/Brawn_GP) has a winning rate of 100%. In fact this team has won the only championship in which it has participated (2009).
 
 ```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=8, fig.height=2.5,fig.align='center'}
 # Some constructors metrics
@@ -1634,7 +1639,7 @@ ggplot(data=data[0:20,],aes(x= reorder(name,performance),y=performance)) +
   coord_flip()
 ```
 
-As we can see the ranking is dominated by Mercedes. This result is attributable to the excellent results obtained in recent years. One thing is for certain, in the last years, Mercedes are doing something that's never been seen in the 71-year history of the Formula One World Championship. We've seen similar periods of dominance in the sport before however, such as McLaren's 1988 season, where the stunning MP4/4 won 15 of the 16 races at the hands of Ayrton Senna and Alain Prost. Or in 2002, where Michael Schumacher and Rubens Barrichello combined to win 15 of the 17 races, thus sealing Schumi's historic 5th World Championship, equalling the great Juan Manuel Fangio in the process.
+As we can see the ranking is dominated by Mercedes. This result is attributable to the excellent results obtained in recent years. One thing is for certain, in the last years, Mercedes are doing something that's never been seen before. We've seen similar periods of dominance in the sport before however, such as McLaren's 1988 season, where the stunning MP4/4 won 15 of the 16 races at the hands of Ayrton Senna and Alain Prost. Or in 2002, where Michael Schumacher and Rubens Barrichello combined to win 15 of the 17 races, thus sealing Schumi's historic 5th World Championship, equalling the great Juan Manuel Fangio in the process.
 
 In the following table we recap the main metrics of the 211 constructors that participated in Formula One.
 ```{r,include = TRUE, warning=FALSE,echo=FALSE,message=FALSE,fig.width=12, fig.height=2}
@@ -1699,17 +1704,16 @@ vis.arcs$width <- 1
 vis.arcs$shadow <- FALSE
 
 net = visNetwork(vis.nodes, vis.arcs,background="white")
-visOptions(net,highlightNearest = TRUE)
+
+visOptions(net,highlightNearest = TRUE) 
 ```
 
 By using the full network (all drivers and all constructors) we can get some useful information. By computing the *degree centrality* for each node we can know how many drivers have raced for a manufacturer and for how many manufacturers has a driver raced. The full network has 850+211 nodes and 2117 arcs.
 
 We summarize the results with the following two rankings and two tables.
 
-```{r,include = TRUE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=9, fig.height=7,fig.align='center'}
-# iGraph tests
-library(igraph)
-
+```{r,include = FALSE, warning=FALSE,message=FALSE,echo=FALSE,fig.width=9, fig.height=7,fig.align='center'}
+# iGraph
 edges = unique(results %>% select(driverId,constructorId))
 
 id_name_drivers = driver_stats %>% select(full_name,driverId)
@@ -1766,25 +1770,31 @@ y = ggplot(data=data[1:20,],aes(x= reorder(name,degree),y=degree)) +
   coord_flip()+
   scale_fill_distiller(palette="PuRd",direction = 1,limits=c(0,100))
 
-
 grid.arrange(x,y, ncol=2,widths=c(1,1))
+
+data = drivers_degrees  %>% arrange(desc(degree)) %>% rename(Name=full_name,"n° of constructors (degree)"=degree) %>% select(-driverId)
+reactable(data,searchable = TRUE,bordered = TRUE,height = 300)
+
+data = constr_degrees  %>% arrange(desc(degree)) %>% rename(Name=name,"n° of drivers (degree)"=degree) %>% select(-constructorId)
+reactable(data,searchable = TRUE,bordered = TRUE,height = 300)
+
 ```
 
 # Conclusions
-Through data analysis we were able to evaluate the performance of drivers and constructors on the basis of multiple metrics. Those metrics allowed us to define a more sophisticated ranking system which, based on some assumptions, allowed us to isolate some variabilty factors relating to the changes that have occurred over the decades, allowing us to perform a more fair and objective evaluation. We were also able to draw conclusions about countries, discovering which of them partecipated the most and which of these is the homeland of the best drivers. 
+Through data analysis we were able to evaluate the performance of drivers and constructors on the basis of multiple metrics. Those metrics allowed us to define a more sophisticated ranking system which, based on some assumptions, isolate some variabilty factors relating to the changes that have occurred over the decades, allowing us to perform a more fair and objective evaluation. We were also able to draw conclusions about countries, discovering which of them partecipated the most and which of these is the homeland of the best drivers. 
 
 The proposed ranking systems are based on subjective assumptions and parameters, but in my opinion they can be considered more balanced methods than the classic ones which are based on the simple count of absolute frequencies of basic metrics.
 
 ### Further improvements
 Undoubtedly, the rating systems can be improved, especially the one regards the drivers. For examples, we can consider, for each race, which driver performed *the fastest lap* and award him with some performance score. We can also evaluate the drivers with respect to the *positions gained* (position in the starting grid and final position). A very complex metric that could be included is the *consistency of lap times*. Unfortunately, these metrics require the data related to each lap of each race in the history of *F1*. These data are only partially provided by the dataset, in fact the dataset provides the data relating to all the laps of only about half of the races; this is the reason why these metrics are not considered here. Their use would have disadvantaged the drivers who participated in the races for which the values are not present. Also qualifying data could be used, but actually they are not easily obtainable from the web.
 
-Another factor that is often a source of discussion among fans is the *car's performance factor*. Sometimes a good driver finds himself, unfortunately in non-competitive teams, thus not being able to demonstrate his skills. It must be said, however, that typically the best drivers are hired by the most winning teams, and vice versa. It would be interesting, but at the same time very complex, to try to isolate this factor.
+Another factor that is often a source of discussion among fans is the *car's performance factor*. Sometimes a good driver finds himself, unfortunately, in non-competitive teams, thus not being able to demonstrate his skills. However, it must be said that, typically the best drivers are hired by the most winning teams, and vice versa. It would be interesting, but at the same time very complex, to try to isolate this factor.
 
 # Some curiosities about F1
 In the following chapter some brief curiosities about Formula One are reported.
 
 ## Estimation of the total km traveled in the races
-The dataset gives us information on the number of races held for each season. For each of these races we know also how many drivers partecipated. By searching on the internet how many kilometers a grand prix must consist of, we can estimate the total number of kilometers traveled by the cars that participated in all Formula 1 races. This is an estimate because some drivers have only completed a portion of the race (*in fact we will apply a hypothetical factor of -10%*) due to mechanical failures or accidents. 
+The dataset gives us information on the number of races held for each season. For each of these races we know also how many drivers partecipated. By knowing how many kilometers a grand prix must consist of, we can estimate the total number of kilometers traveled by the cars that participated in all Formula 1 races. This is an estimate because some drivers have only completed a portion of the race (*in fact we will apply a hypothetical factor of -10%*) due to mechanical failures or accidents. 
 Another approximation was made for those years in which the number of kilometers for a grand prix was variable, in those cases the average was considered.
 
 Let's compare the result with some known long distances.

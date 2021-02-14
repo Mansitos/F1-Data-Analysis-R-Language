@@ -1,5 +1,0 @@
-"2","r error 4 (R code execution error)"
-"0","# World cloud test con nazioni"
-"0",""
-"0","wordcloud(country_stats$country,country_stats$score,scale=c(10,0.5),max.words = length(country_stats$country),random.order=FALSE,rot.per=0.25,ordered.colors = FALSE,random.color = TRUE)"
-"0",""
