@@ -3,8 +3,10 @@
 ### University Project. Course: Advanced Data Science 2020 (UNIUD)
 Exam mark/score: 30L (max)
 
-What you can find here:
-- A PDF report about the last 71 years of F1 (the result of the project, what you should check!)
+The HTML file you have to check:  **A journey through 71 years of Formula 1 _ Final Report.html**
+
+**What you can find here:**
+- An HTML report about the last 71 years of F1 (the result of the project, what you should check!)
 - R + Rmd code about the analysis (first part: code and tests, second part: report)
 - The report is the HTML file, open it with your browser
 - The code is public, the dataset too (available on kaggle.com, link in the introduction)
