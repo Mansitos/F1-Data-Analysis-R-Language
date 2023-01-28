@@ -15,4 +15,6 @@ The HTML file you have to check:  **A journey through 71 years of Formula 1 _ Fi
 
 (Actually my first data science project: I'm very proud of it!)
 
+A render of the HTML report (png animations are lost...) I still recommend downloading the html file.
+
 ![png](readmeimage.png)
