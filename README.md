@@ -14,3 +14,5 @@ The HTML file you have to check:  **A journey through 71 years of Formula 1 _ Fi
 - lot of bugs and unclear code :P
 
 (Actually my first data science project: I'm very proud of it!)
+
+![png](readmeimage.png)
